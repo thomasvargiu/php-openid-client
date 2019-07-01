@@ -1,0 +1,4 @@
+/vendor/
+/.phpstorm.meta.php
+/phpstan
+/.phpunit.result.cache

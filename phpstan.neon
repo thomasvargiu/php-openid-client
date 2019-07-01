@@ -1,0 +1,10 @@
+parameters:
+    level: max
+    fileExtensions:
+        - php
+    excludes_analyse:
+        - %currentWorkingDirectory%/.phpstorm.meta.php
+        - %currentWorkingDirectory%/vendor/*
+
+includes:
+    - vendor/jangregor/phpstan-prophecy/src/extension.neon
