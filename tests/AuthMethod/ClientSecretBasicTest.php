@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\AuthMethod;
 
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\ClientSecretBasic;
-use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\Model\ClientMetadataInterface;
 
@@ -42,7 +42,7 @@ class ClientSecretBasicTest extends TestCase
         $streamFactory->createStream('foo=bar')
             ->shouldBeCalled()
             ->willReturn($stream->reveal());
-        
+
         $request->withHeader('Authentication', 'Basic ' . \base64_encode('foo:bar'))
             ->shouldBeCalled()
             ->willReturn($requestWithHeader->reveal());

@@ -20,13 +20,16 @@ class TokenRequestMiddleware implements MiddlewareInterface
 {
     /** @var AuthorizationService */
     private $authorizationService;
+
     /** @var ClientInterface */
     private $client;
+
     /** @var TokenResponseFactoryInterface */
     private $tokenResponseFactory;
 
     /**
      * TokenRequestMiddleware constructor.
+     *
      * @param AuthorizationService $authorizationService
      * @param ClientInterface $client
      * @param null|TokenResponseFactoryInterface $tokenResponseFactory
@@ -40,7 +43,6 @@ class TokenRequestMiddleware implements MiddlewareInterface
         $this->client = $client;
         $this->tokenResponseFactory = $tokenResponseFactory ?: new TokenResponseFactory();
     }
-
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

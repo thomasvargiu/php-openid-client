@@ -13,11 +13,10 @@ class QueryJwtTest extends AbstractJwtTest
     protected function createResponseMode(
         JWTLoader $jwtLoader,
         ResponseModeInterface $baseResponseMode
-    ): ResponseModeInterface
-    {
+    ): ResponseModeInterface {
         return new QueryJwt($jwtLoader, $baseResponseMode);
     }
-    
+
     public function testGetSupportedModeWithDefaultBaseMode(): void
     {
         $jwtLoader = $this->prophesize(JWTLoader::class);

@@ -15,15 +15,19 @@ final class PrivateKeyJwtAuth extends AbstractJwtAuth
 {
     /** @var JWSBuilder */
     private $jwsBuilder;
+
     /** @var Serializer */
     private $jwsSerializer;
+
     /** @var null|string */
     private $kid;
+
     /** @var int */
     private $tokenTTL;
 
     /**
      * PrivateKeyJwt constructor.
+     *
      * @param JWSBuilder $jwsBuilder
      * @param Serializer $serializer
      * @param string|null $kid
@@ -36,8 +40,7 @@ final class PrivateKeyJwtAuth extends AbstractJwtAuth
         ?string $kid = null,
         int $tokenTTL = 60,
         ?StreamFactoryInterface $streamFactory = null
-    )
-    {
+    ) {
         parent::__construct($streamFactory);
 
         $this->jwsBuilder = $jwsBuilder;
@@ -64,7 +67,7 @@ final class PrivateKeyJwtAuth extends AbstractJwtAuth
             throw new RuntimeException('Unable to get a client signature jwk');
         }
 
-        $time = time();
+        $time = \time();
         $jti = Uuid::uuid4()->toString();
 
         /** @var string $payload */

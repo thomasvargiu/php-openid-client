@@ -22,8 +22,10 @@ class SessionCookieMiddleware implements MiddlewareInterface
 
     /** @var string */
     private $cookieName;
+
     /** @var null|int */
     private $cookieMaxAge;
+
     /** @var int */
     private $randomBytes;
 

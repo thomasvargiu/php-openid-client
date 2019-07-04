@@ -73,6 +73,7 @@ class IssuerMetadata implements IssuerMetadataInterface
 
     /**
      * IssuerMetadata constructor.
+     *
      * @param string $issuer
      * @param string $authorizationEndpoint
      * @param string $jwksUri
@@ -98,7 +99,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     public static function fromClaims(array $claims): self
     {
         $missingKeys = \array_diff(static::$requiredKeys, \array_keys($claims));
-        if (0 !== count($missingKeys)) {
+        if (0 !== \count($missingKeys)) {
             throw new InvalidArgumentException('Invalid issuer metadata. Missing keys: ' . \implode(', ', $missingKeys));
         }
 
@@ -117,6 +118,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['issuer'];
     }
+
     /**
      * @return string
      */
@@ -124,6 +126,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['authorization_endpoint'];
     }
+
     /**
      * @return string|null
      */
@@ -131,6 +134,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['token_endpoint'];
     }
+
     /**
      * @return string|null
      */
@@ -138,6 +142,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['userinfo_endpoint'];
     }
+
     /**
      * @return string|null
      */
@@ -145,6 +150,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['registration_endpoint'];
     }
+
     /**
      * @return string
      */
@@ -152,6 +158,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['jwks_uri'];
     }
+
     /**
      * @return string[]
      */
@@ -159,6 +166,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['scopes_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -166,6 +174,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['response_types_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -173,6 +182,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['response_modes_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -180,6 +190,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['grant_types_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -187,6 +198,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['acr_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -194,6 +206,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['subject_types_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -201,6 +214,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['display_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -208,6 +222,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['claim_types_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -215,6 +230,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['claim_supported'];
     }
+
     /**
      * @return string|null
      */
@@ -222,6 +238,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['service_documentation'];
     }
+
     /**
      * @return string[]|null
      */
@@ -229,6 +246,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['claims_locales_supported'];
     }
+
     /**
      * @return string[]|null
      */
@@ -236,6 +254,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['ui_locales_supported'];
     }
+
     /**
      * @return bool
      */
@@ -243,6 +262,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['claims_parameter_supported'];
     }
+
     /**
      * @return bool
      */
@@ -250,6 +270,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['request_parameter_supported'];
     }
+
     /**
      * @return bool
      */
@@ -257,6 +278,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['request_uri_parameter_supported'];
     }
+
     /**
      * @return bool
      */
@@ -264,6 +286,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['require_request_uri_registration'];
     }
+
     /**
      * @return string|null
      */
@@ -271,6 +294,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['op_policy_uri'];
     }
+
     /**
      * @return string|null
      */
@@ -278,6 +302,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['op_tos_uri'];
     }
+
     /**
      * @return string[]|null
      */
@@ -285,6 +310,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['code_challenge_methods_supported'];
     }
+
     /**
      * @return string|null
      */
@@ -292,6 +318,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['signed_metadata'];
     }
+
     /**
      * @return string[]
      */
@@ -299,6 +326,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['token_endpoint_auth_methods_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -314,6 +342,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['id_token_signing_alg_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -321,6 +350,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['id_token_encryption_alg_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -328,6 +358,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['id_token_encryption_enc_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -335,6 +366,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['userinfo_signing_alg_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -342,6 +374,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['userinfo_encryption_alg_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -349,6 +382,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['userinfo_encryption_enc_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -356,6 +390,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['authorization_signing_alg_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -363,6 +398,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['authorization_encryption_alg_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -370,6 +406,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['authorization_encryption_enc_values_supported'];
     }
+
     /**
      * @return string|null
      */
@@ -377,6 +414,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['introspection_endpoint'];
     }
+
     /**
      * @return string[]
      */
@@ -384,6 +422,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['introspection_endpoint_auth_methods_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -399,6 +438,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['introspection_signing_alg_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -406,6 +446,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['introspection_encryption_alg_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -413,6 +454,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['introspection_encryption_enc_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -420,6 +462,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['request_object_signing_alg_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -427,6 +470,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['request_object_encryption_alg_values_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -434,6 +478,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['request_object_encryption_enc_values_supported'];
     }
+
     /**
      * @return string|null
      */
@@ -441,6 +486,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['revocation_endpoint'];
     }
+
     /**
      * @return string[]
      */
@@ -448,6 +494,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['revocation_endpoint_auth_methods_supported'];
     }
+
     /**
      * @return string[]
      */
@@ -463,6 +510,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['check_session_iframe'];
     }
+
     /**
      * @return string|null
      */
@@ -470,6 +518,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['end_session_iframe'];
     }
+
     /**
      * @return bool
      */
@@ -477,6 +526,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['frontchannel_logout_supported'];
     }
+
     /**
      * @return bool
      */
@@ -484,6 +534,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['frontchannel_logout_session_supported'];
     }
+
     /**
      * @return bool
      */
@@ -491,6 +542,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['backchannel_logout_supported'];
     }
+
     /**
      * @return bool
      */
@@ -498,6 +550,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['backchannel_logout_session_supported'];
     }
+
     /**
      * @return bool
      */
@@ -505,6 +558,7 @@ class IssuerMetadata implements IssuerMetadataInterface
     {
         return $this->claims['tls_client_certificate_bound_access_tokens'];
     }
+
     /**
      * @return array<string, string>
      */
@@ -521,7 +575,7 @@ class IssuerMetadata implements IssuerMetadataInterface
         return \array_filter($this->claims, static function ($value, string $key) {
             return \array_key_exists($key, static::$requiredKeys)
                 || $value !== (static::$defaults[$key] ?? null);
-        }, ARRAY_FILTER_USE_BOTH);
+        }, \ARRAY_FILTER_USE_BOTH);
     }
 
     /**
@@ -534,6 +588,7 @@ class IssuerMetadata implements IssuerMetadataInterface
 
     /**
      * @param string $name
+     *
      * @return bool
      */
     public function has(string $name): bool
@@ -543,6 +598,7 @@ class IssuerMetadata implements IssuerMetadataInterface
 
     /**
      * @param string $name
+     *
      * @return mixed|null
      */
     public function get(string $name)

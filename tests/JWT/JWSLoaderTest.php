@@ -7,16 +7,15 @@ namespace TMV\OpenIdClientTest\JWT;
 use Jose\Component\Checker\ClaimCheckerManager;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Signature\JWS;
+use Jose\Component\Signature\JWSLoader as WTJWSLoader;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\IssuerInterface;
 use TMV\OpenIdClient\JWT\JWSLoader;
-use Jose\Component\Signature\JWSLoader as WTJWSLoader;
-use PHPUnit\Framework\TestCase;
 
 class JWSLoaderTest extends TestCase
 {
-
     public function testHappyPath(): void
     {
         $wtJwsLoader = $this->prophesize(WTJWSLoader::class);

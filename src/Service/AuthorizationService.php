@@ -12,21 +12,24 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 use TMV\OpenIdClient\Authorization\AuthRequestInterface;
-use TMV\OpenIdClient\Exception\RuntimeException;
 use TMV\OpenIdClient\ClientInterface as OpenIDClient;
+use TMV\OpenIdClient\Exception\RuntimeException;
 use function TMV\OpenIdClient\parseMetadataResponse;
 
 class AuthorizationService
 {
     /** @var ClientInterface */
     private $client;
+
     /** @var RequestFactoryInterface */
     private $requestFactory;
+
     /** @var UriFactoryInterface */
     private $uriFactory;
 
     /**
      * AuthorizationService constructor.
+     *
      * @param null|ClientInterface $client
      * @param null|RequestFactoryInterface $requestFactory
      * @param null|UriFactoryInterface $uriFactory

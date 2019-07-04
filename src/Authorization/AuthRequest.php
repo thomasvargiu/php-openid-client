@@ -18,6 +18,7 @@ class AuthRequest implements AuthRequestInterface
 
     /**
      * CodeFlow constructor.
+     *
      * @param string $clientId
      * @param string $redirectUri
      * @param array $params
@@ -26,8 +27,7 @@ class AuthRequest implements AuthRequestInterface
         string $clientId,
         string $redirectUri,
         array $params = []
-    )
-    {
+    ) {
         $defaults = [
             'scope' => 'openid',
             'response_type' => 'code',
@@ -234,6 +234,7 @@ class AuthRequest implements AuthRequestInterface
      * Add other params and return a new instance.
      *
      * @param array<string, mixed> $params
+     *
      * @return AuthRequestInterface
      */
     public function withParams(array $params): AuthRequestInterface

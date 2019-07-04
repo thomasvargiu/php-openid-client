@@ -13,6 +13,7 @@ final class ResponseModeProvider implements ResponseModeProviderInterface
 
     /**
      * ResponseModeProvider constructor.
+     *
      * @param ResponseModeFactoryInterface $responseModeManager
      */
     public function __construct(ResponseModeFactoryInterface $responseModeManager)
@@ -42,7 +43,7 @@ final class ResponseModeProvider implements ResponseModeProviderInterface
             $baseMethod = 'query';
         }
 
-        $isJwt = array_key_exists('response', $params);
+        $isJwt = \array_key_exists('response', $params);
 
         if (! $isJwt) {
             return $baseMethod;

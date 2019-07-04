@@ -12,18 +12,22 @@ class OAuth2Exception extends RuntimeException implements JsonSerializable
 {
     /** @var string */
     private $error;
+
     /** @var null|string */
     private $description;
+
     /** @var null|string */
     private $errorUri;
 
     /**
      * @param ResponseInterface $response
      * @param Throwable|null $previous
+     *
      * @throws RemoteException
+     *
      * @return self
      */
-    public static function fromResponse(ResponseInterface $response, Throwable $previous = null): OAuth2Exception
+    public static function fromResponse(ResponseInterface $response, Throwable $previous = null): self
     {
         $data = \json_decode($response->getBody()->getContents(), true);
 
@@ -37,6 +41,7 @@ class OAuth2Exception extends RuntimeException implements JsonSerializable
     /**
      * @param array $params
      * @param Throwable|null $previous
+     *
      * @return self
      */
     public static function fromParameters(array $params, Throwable $previous = null): self
@@ -60,11 +65,10 @@ class OAuth2Exception extends RuntimeException implements JsonSerializable
         ?string $errorUri = null,
         int $code = 0,
         Throwable $previous = null
-    )
-    {
+    ) {
         $message = $error;
         if ($description) {
-            $message = sprintf('%s (%s)', $description, $error);
+            $message = \sprintf('%s (%s)', $description, $error);
         }
 
         parent::__construct($message, $code, $previous);

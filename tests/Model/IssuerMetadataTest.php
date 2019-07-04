@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\Model;
 
-use TMV\OpenIdClient\Model\IssuerMetadata;
 use PHPUnit\Framework\TestCase;
+use TMV\OpenIdClient\Model\IssuerMetadata;
 
 class IssuerMetadataTest extends TestCase
 {
-
     public function testJsonSerialize(): void
     {
         $metadata = new IssuerMetadata(
@@ -21,7 +20,7 @@ class IssuerMetadataTest extends TestCase
         $expected = [
             'issuer' => 'foo-issuer',
             'authorization_endpoint' => 'foo-endpoint',
-            'jwks_uri' => 'foo-jwks'
+            'jwks_uri' => 'foo-jwks',
         ];
 
         $this->assertSame($expected, $metadata->jsonSerialize());
@@ -61,6 +60,7 @@ class IssuerMetadataTest extends TestCase
 
     /**
      * @dataProvider getClaimGetterProvider
+     *
      * @param string $claim
      * @param string $methodName
      * @param mixed $value

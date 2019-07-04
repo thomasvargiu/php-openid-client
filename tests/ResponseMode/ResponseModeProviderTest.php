@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\ResponseMode;
 
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use TMV\OpenIdClient\ResponseMode\ResponseModeFactoryInterface;
 use TMV\OpenIdClient\ResponseMode\ResponseModeInterface;
 use TMV\OpenIdClient\ResponseMode\ResponseModeProvider;
-use PHPUnit\Framework\TestCase;
 
 class ResponseModeProviderTest extends TestCase
 {
-
     public function testWithFragment(): void
     {
         $factory = $this->prophesize(ResponseModeFactoryInterface::class);

@@ -15,8 +15,10 @@ class JWSLoader implements JWTLoader
 {
     /** @var WTJWSLoader */
     private $jwsLoader;
+
     /** @var ClaimCheckerManager */
     private $claimCheckerManager;
+
     /** @var string[] */
     private $mandatoryClaims;
 
@@ -24,8 +26,7 @@ class JWSLoader implements JWTLoader
         WTJWSLoader $jwsLoader,
         ?ClaimCheckerManager $claimCheckedManager = null,
         array $mandatoryClaims = []
-    )
-    {
+    ) {
         $this->jwsLoader = $jwsLoader;
         $this->claimCheckerManager = $claimCheckedManager ?: new ClaimCheckerManager([]);
         $this->mandatoryClaims = $mandatoryClaims;

@@ -16,6 +16,7 @@ class DiscoveryMetadataProvider
 {
     /** @var ClientInterface */
     private $client;
+
     /** @var RequestFactoryInterface */
     private $requestFactory;
 

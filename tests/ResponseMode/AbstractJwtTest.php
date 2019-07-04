@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace TMV\OpenIdClientTest\ResponseMode;
 
 use Jose\Component\Signature\JWS;
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\JWT\JWTLoader;
-use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\ResponseMode\ResponseModeInterface;
 
 abstract class AbstractJwtTest extends TestCase
 {
+    protected $jwtLoader;
 
-     protected $jwtLoader;
-     protected $baseResponseMode;
-     /** @var ResponseModeInterface */
-     protected $responseMode;
+    protected $baseResponseMode;
+
+    /** @var ResponseModeInterface */
+    protected $responseMode;
 
     protected function setUp(): void
     {

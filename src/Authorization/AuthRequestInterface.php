@@ -129,16 +129,19 @@ interface AuthRequestInterface extends JsonSerializable
     public function getAcrValues(): ?string;
 
     public function getCodeChallenge(): ?string;
+
     public function getCodeChallengeMethod(): ?string;
+
     public function getRequest(): ?string;
 
     /**
      * Add other params and return a new instance.
      *
      * @param array<string, mixed> $params
+     *
      * @return AuthRequestInterface
      */
-    public function withParams(array $params): AuthRequestInterface;
+    public function withParams(array $params): self;
 
     /**
      * Create params ready to use.

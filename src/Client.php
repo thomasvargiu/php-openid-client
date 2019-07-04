@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace TMV\OpenIdClient;
 
 use Jose\Component\Core\JWKSet;
-use TMV\OpenIdClient\AuthMethod\AuthMethodInterface;
 use TMV\OpenIdClient\AuthMethod\AuthMethodFactory;
 use TMV\OpenIdClient\AuthMethod\AuthMethodFactoryInterface;
+use TMV\OpenIdClient\AuthMethod\AuthMethodInterface;
 use TMV\OpenIdClient\AuthMethod\ClientSecretBasic;
 use TMV\OpenIdClient\Authorization\AuthRequestInterface;
 use TMV\OpenIdClient\Exception\RuntimeException;
@@ -21,19 +21,25 @@ class Client implements ClientInterface
 {
     /** @var IssuerInterface */
     private $issuer;
+
     /** @var ClientMetadataInterface */
     private $metadata;
+
     /** @var JWKSet */
     private $jwks;
+
     /** @var AuthRequestInterface */
     private $authRequest;
+
     /** @var AuthMethodFactoryInterface */
     private $authMethodFactory;
+
     /** @var ResponseModeFactoryInterface */
     private $responseModeFactory;
 
     /**
      * Client constructor.
+     *
      * @param IssuerInterface $issuer
      * @param ClientMetadataInterface $metadata
      * @param JWKSet $jwks
@@ -108,6 +114,7 @@ class Client implements ClientInterface
      * Handle endpoint URI based on auth method
      *
      * @param string $endpointClaim
+     *
      * @return string|null
      */
     private function getEndpointUri(string $endpointClaim): ?string
@@ -125,8 +132,8 @@ class Client implements ClientInterface
         }
 
         return $this->getIssuer()
-                ->getMetadata()
-                ->getMtlsEndpointAliases()[$endpointClaim] ?? $endpointUri;
+            ->getMetadata()
+            ->getMtlsEndpointAliases()[$endpointClaim] ?? $endpointUri;
     }
 
     public function getTokenEndpoint(): string

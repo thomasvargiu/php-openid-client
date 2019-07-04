@@ -9,18 +9,20 @@ use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\OAuth2Exception;
 use TMV\OpenIdClient\Exception\RuntimeException;
-use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\JWT\JWTLoader;
 
 class UserinfoService
 {
     /** @var null|JWTLoader */
     private $jwtLoader;
+
     /** @var ClientInterface */
     private $client;
+
     /** @var RequestFactoryInterface */
     private $requestFactory;
 

@@ -11,6 +11,9 @@
         }
     ],
     "minimum-stability": "stable",
+    "config": {
+        "sort-packages": true
+    },
     "keywords": [
         "openid",
         "oauth2"
@@ -48,6 +51,7 @@
         }
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.15",
         "phpstan/phpstan": "^0.11.8",
         "jangregor/phpstan-prophecy": "^0.4.0",
         "phpstan/extension-installer": "^1.0",
@@ -69,5 +73,14 @@
         "web-token/jwt-signature-algorithm-none": "^2.0",
         "web-token/jwt-signature-algorithm-rsa": "^2.0",
         "phpunit/phpunit": "^8.2"
+    },
+    "scripts": {
+        "cs-check": "php-cs-fixer fix --dry-run --diff --allow-risky=yes",
+        "cs-fix": "php-cs-fixer fix --diff --allow-risky=yes",
+        "phpstan": "phpstan analyse --no-progress .",
+        "check": [
+            "@cs-check",
+            "@phpstan"
+        ]
     }
 }

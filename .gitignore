@@ -2,3 +2,4 @@
 /.phpstorm.meta.php
 /phpstan
 /.phpunit.result.cache
+/.php_cs.cache

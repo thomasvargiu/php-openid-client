@@ -6,16 +6,15 @@ namespace TMV\OpenIdClientTest\JWT;
 
 use Jose\Component\Checker\ClaimCheckerManager;
 use Jose\Component\Core\JWKSet;
+use Jose\Component\NestedToken\NestedTokenLoader as WTNestedTokenLoader;
 use Jose\Component\Signature\JWS;
+use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\IssuerInterface;
 use TMV\OpenIdClient\JWT\NestedTokenLoader;
-use Jose\Component\NestedToken\NestedTokenLoader as WTNestedTokenLoader;
-use PHPUnit\Framework\TestCase;
 
 class NestedTokenLoaderTest extends TestCase
 {
-
     public function testHappyPath(): void
     {
         $wtLoader = $this->prophesize(WTNestedTokenLoader::class);

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\functions;
 
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
-use function TMV\OpenIdClient\parseMetadataResponse;
-use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\Exception\OAuth2Exception;
 use TMV\OpenIdClient\Exception\RemoteException;
+use function TMV\OpenIdClient\parseMetadataResponse;
 
 class ParseMetadataResponseTest extends TestCase
 {

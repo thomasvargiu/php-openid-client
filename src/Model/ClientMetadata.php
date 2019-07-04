@@ -46,6 +46,7 @@ class ClientMetadata implements ClientMetadataInterface
 
     /**
      * IssuerMetadata constructor.
+     *
      * @param string $clientId
      * @param array<string, mixed> $claims
      */
@@ -63,7 +64,7 @@ class ClientMetadata implements ClientMetadataInterface
     public static function fromClaims(array $claims): self
     {
         $missingKeys = \array_diff(static::$requiredKeys, \array_keys($claims));
-        if (0 !== count($missingKeys)) {
+        if (0 !== \count($missingKeys)) {
             throw new InvalidArgumentException('Invalid client metadata. Missing keys: ' . \implode(', ', $missingKeys));
         }
 
@@ -143,7 +144,7 @@ class ClientMetadata implements ClientMetadataInterface
         return \array_filter($this->claims, static function ($value, string $key) {
             return \array_key_exists($key, static::$requiredKeys)
                 || $value !== (static::$defaults[$key] ?? null);
-        }, ARRAY_FILTER_USE_BOTH);
+        }, \ARRAY_FILTER_USE_BOTH);
     }
 
     /**
@@ -156,6 +157,7 @@ class ClientMetadata implements ClientMetadataInterface
 
     /**
      * @param string $name
+     *
      * @return bool
      */
     public function has(string $name): bool
@@ -165,6 +167,7 @@ class ClientMetadata implements ClientMetadataInterface
 
     /**
      * @param string $name
+     *
      * @return mixed|null
      */
     public function get(string $name)

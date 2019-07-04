@@ -19,11 +19,13 @@ class UserInfoMiddleware implements MiddlewareInterface
 
     /** @var UserinfoService */
     private $userinfoService;
+
     /** @var ClientInterface */
     private $client;
 
     /**
      * TokenRequestMiddleware constructor.
+     *
      * @param UserinfoService $userinfoService
      * @param ClientInterface $client
      */
@@ -46,7 +48,7 @@ class UserInfoMiddleware implements MiddlewareInterface
         $accessToken = $tokenResponse->getAccessToken();
 
         if (! $accessToken) {
-            throw new RuntimeException(sprintf(
+            throw new RuntimeException(\sprintf(
                 'Unable to get access token from "%s" attribute',
                 TokenResponseInterface::class
             ));

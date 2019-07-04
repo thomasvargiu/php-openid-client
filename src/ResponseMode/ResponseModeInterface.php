@@ -10,5 +10,6 @@ use TMV\OpenIdClient\ClientInterface;
 interface ResponseModeInterface
 {
     public function getSupportedMode(): string;
+
     public function parseParams(ServerRequestInterface $request, ClientInterface $client): array;
 }

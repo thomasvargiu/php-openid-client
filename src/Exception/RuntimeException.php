@@ -6,5 +6,4 @@ namespace TMV\OpenIdClient\Exception;
 
 class RuntimeException extends \RuntimeException implements ExceptionInterface
 {
-
 }

@@ -16,6 +16,7 @@ abstract class AbstractJwtAuth implements AuthMethodInterface
 
     /**
      * AbstractPrivateKeyJwt constructor.
+     *
      * @param null|StreamFactoryInterface $streamFactory
      */
     public function __construct(?StreamFactoryInterface $streamFactory = null)

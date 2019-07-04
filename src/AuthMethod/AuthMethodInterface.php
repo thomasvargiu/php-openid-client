@@ -15,5 +15,6 @@ interface AuthMethodInterface
     ];
 
     public function getSupportedMethod(): string;
+
     public function createRequest(RequestInterface $request, OpenIDClient $client, array $claims): RequestInterface;
 }

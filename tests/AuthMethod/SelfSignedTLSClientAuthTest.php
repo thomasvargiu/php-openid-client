@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\AuthMethod;
 
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
-use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\AuthMethod\SelfSignedTLSClientAuth;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\Model\ClientMetadataInterface;

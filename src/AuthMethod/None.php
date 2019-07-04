@@ -21,6 +21,7 @@ final class None implements AuthMethodInterface
 
     /**
      * None constructor.
+     *
      * @param null|StreamFactoryInterface $streamFactory
      */
     public function __construct(?StreamFactoryInterface $streamFactory = null)

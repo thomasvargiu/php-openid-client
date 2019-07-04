@@ -10,18 +10,20 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use function TMV\OpenIdClient\checkServerResponse;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use TMV\OpenIdClient\IssuerInterface;
-use function TMV\OpenIdClient\checkServerResponse;
 use function TMV\OpenIdClient\parseMetadataResponse;
 
 class ClientRegistration
 {
     /** @var ClientInterface */
     private $client;
+
     /** @var RequestFactoryInterface */
     private $requestFactory;
+
     /** @var StreamFactoryInterface */
     private $streamFactory;
 
@@ -35,6 +37,7 @@ class ClientRegistration
 
     /**
      * ClientRegistration constructor.
+     *
      * @param null|ClientInterface $client
      * @param null|RequestFactoryInterface $requestFactory
      * @param null|StreamFactoryInterface $streamFactory
@@ -53,8 +56,7 @@ class ClientRegistration
         IssuerInterface $issuer,
         array $claims,
         ?string $initialToken = null
-    ): array
-    {
+    ): array {
         $registrationEndpoint = $issuer->getMetadata()->getRegistrationEndpoint();
 
         if (! $registrationEndpoint) {
@@ -116,8 +118,7 @@ class ClientRegistration
         string $clientUri,
         string $accessToken,
         array $claims
-    ): array
-    {
+    ): array {
         /** @var array<string, mixed> $clientRegistrationMetadata */
         $clientRegistrationMetadata = \array_intersect_key($claims, \array_flip(static::$registrationClaims));
         /** @var array<string, mixed> $claims */

@@ -20,6 +20,7 @@ class AuthSession implements AuthSessionInterface
 
     /**
      * @param string $name
+     *
      * @return null|mixed
      */
     public function get(string $name)

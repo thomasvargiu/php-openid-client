@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\AuthMethod;
 
-use TMV\OpenIdClient\AuthMethod\AuthMethodFactory;
 use PHPUnit\Framework\TestCase;
+use TMV\OpenIdClient\AuthMethod\AuthMethodFactory;
 use TMV\OpenIdClient\AuthMethod\AuthMethodInterface;
 
 class AuthMethodFactoryTest extends TestCase

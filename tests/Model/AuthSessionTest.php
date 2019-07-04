@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\Model;
 
-use TMV\OpenIdClient\Model\AuthSession;
 use PHPUnit\Framework\TestCase;
+use TMV\OpenIdClient\Model\AuthSession;
 
 class AuthSessionTest extends TestCase
 {
-
     public function testAll(): void
     {
         $session = new AuthSession();

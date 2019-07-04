@@ -21,8 +21,10 @@ class AuthTokenResponseMiddleware implements MiddlewareInterface
 {
     /** @var ClientInterface */
     private $client;
+
     /** @var AuthResponseFactoryInterface */
     private $authResponseFactory;
+
     /** @var ResponseModeProviderInterface */
     private $responseModeProvider;
 

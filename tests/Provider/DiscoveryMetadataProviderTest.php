@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\Provider;
 
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\Provider\DiscoveryMetadataProvider;
-use PHPUnit\Framework\TestCase;
 
 class DiscoveryMetadataProviderTest extends TestCase
 {
-
     public function testDiscovery(): void
     {
         $client = $this->prophesize(ClientInterface::class);
@@ -33,7 +32,7 @@ class DiscoveryMetadataProviderTest extends TestCase
         $response->getBody()->willReturn($stream->reveal());
         $response->getStatusCode()->willReturn(200);
         $stream->getContents()->willReturn('{"issuer":"foo"}');
-        
+
         $requestFactory->createRequest('GET', $uri)
             ->willReturn($request->reveal());
 

@@ -9,11 +9,11 @@ use Jose\Component\Core\JWKSet;
 use Jose\Component\Signature\JWS;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\Serializer;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
-use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\AuthMethod\PrivateKeyJwtAuth;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\IssuerInterface;
@@ -96,9 +96,9 @@ class PrivateKeyJwtTest extends TestCase
             $this->assertSame('foo', $decoded['iss'] ?? null);
             $this->assertSame('foo', $decoded['sub'] ?? null);
             $this->assertSame('issuer', $decoded['aud'] ?? null);
-            $this->assertLessThanOrEqual(time(), $decoded['iat']);
-            $this->assertLessThanOrEqual(time() + 60, $decoded['exp']);
-            $this->assertGreaterThan(time(), $decoded['exp']);
+            $this->assertLessThanOrEqual(\time(), $decoded['iat']);
+            $this->assertLessThanOrEqual(\time() + 60, $decoded['exp']);
+            $this->assertGreaterThan(\time(), $decoded['exp']);
 
             return true;
         }))

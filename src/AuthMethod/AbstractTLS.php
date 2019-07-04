@@ -8,7 +8,6 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use TMV\OpenIdClient\ClientInterface as OpenIDClient;
-use TMV\OpenIdClient\Exception\InvalidArgumentException;
 
 abstract class AbstractTLS implements AuthMethodInterface
 {
@@ -17,6 +16,7 @@ abstract class AbstractTLS implements AuthMethodInterface
 
     /**
      * TLS constructor.
+     *
      * @param null|StreamFactoryInterface $streamFactory
      */
     public function __construct(?StreamFactoryInterface $streamFactory = null)

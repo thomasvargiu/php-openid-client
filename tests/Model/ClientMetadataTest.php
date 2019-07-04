@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\Model;
 
+use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Model\ClientMetadata;
-use PHPUnit\Framework\TestCase;
 
 class ClientMetadataTest extends TestCase
 {

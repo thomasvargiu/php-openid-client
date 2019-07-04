@@ -11,11 +11,13 @@ class Issuer implements IssuerInterface
 {
     /** @var IssuerMetadataInterface */
     private $metadata;
+
     /** @var JWKSet */
     private $jwks;
 
     /**
      * Issuer constructor.
+     *
      * @param IssuerMetadataInterface $metadata
      * @param JWKSet $jwks
      */

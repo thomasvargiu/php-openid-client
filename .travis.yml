@@ -9,6 +9,7 @@ cache:
 env:
   global:
     - COMPOSER_ARGS="--no-interaction"
+    - DEPS="latest"
 
 matrix:
   fast_finish: true
@@ -21,7 +22,7 @@ matrix:
         - DEPS=latest
     - php: 7.3
       env:
-      - DEPS=lowest
+        - DEPS=lowest
     - php: 7.3
       env:
         - DEPS=locked
@@ -29,7 +30,7 @@ matrix:
         - EXECUTE_TEST_SCRUTINIZER=true
     - php: 7.3
       env:
-      - DEPS=latest
+        - DEPS=latest
     - php: 7.4snapshot
       env:
         - DEPS=lowest
@@ -53,7 +54,7 @@ before_install:
   - if [[ $EXECUTE_TEST_SCRUTINIZER != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
 
 install:
-  - travis_retry composer install $COMPOSER_ARGS
+  - if [[ "$DEPS" == 'locked' ]]; then travis_retry composer install $COMPOSER_ARGS ; fi
   - if [[ "$DEPS" == 'latest' ]]; then travis_retry composer update $COMPOSER_ARGS ; fi
   - if [[ "$DEPS" == 'lowest' ]]; then travis_retry composer update --prefer-lowest --prefer-stable $COMPOSER_ARGS ; fi
 

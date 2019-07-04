@@ -6,5 +6,4 @@ namespace TMV\OpenIdClient\Exception;
 
 class InvalidArgumentException extends \InvalidArgumentException implements ExceptionInterface
 {
-
 }

@@ -15,8 +15,10 @@ class NestedTokenLoader implements JWTLoader
 {
     /** @var WTNestedTokenLoader */
     private $nestedTokenLoader;
+
     /** @var ClaimCheckerManager */
     private $claimCheckerManager;
+
     /** @var string[] */
     private $mandatoryClaims;
 
@@ -24,8 +26,7 @@ class NestedTokenLoader implements JWTLoader
         WTNestedTokenLoader $nestedTokenLoader,
         ?ClaimCheckerManager $claimCheckerManager = null,
         array $mandatoryClaims = []
-    )
-    {
+    ) {
         $this->nestedTokenLoader = $nestedTokenLoader;
         $this->claimCheckerManager = $claimCheckerManager ?: new ClaimCheckerManager([]);
         $this->mandatoryClaims = $mandatoryClaims;

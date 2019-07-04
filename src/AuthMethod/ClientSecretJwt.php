@@ -4,26 +4,28 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\AuthMethod;
 
-use Jose\Component\Signature\Serializer\Serializer;
-use Psr\Http\Message\StreamFactoryInterface;
-use Ramsey\Uuid\Uuid;
-use TMV\OpenIdClient\ClientInterface as OpenIDClient;
-use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWK;
 use Jose\Component\Signature\Algorithm\HS256;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\CompactSerializer;
+use Jose\Component\Signature\Serializer\Serializer;
+use Psr\Http\Message\StreamFactoryInterface;
+use Ramsey\Uuid\Uuid;
+use TMV\OpenIdClient\ClientInterface as OpenIDClient;
+use TMV\OpenIdClient\Exception\InvalidArgumentException;
 
 final class ClientSecretJwt extends AbstractJwtAuth
 {
     /** @var JWSBuilder */
     private $jwsBuilder;
+
     /** @var Serializer */
     private $jwsSerializer;
 
     /**
      * ClientSecretJwt constructor.
+     *
      * @param null|StreamFactoryInterface $streamFactory
      * @param null|JWSBuilder $jwsBuilder
      * @param null|Serializer $jwsSerializer
@@ -61,7 +63,7 @@ final class ClientSecretJwt extends AbstractJwtAuth
             'k' => $clientSecret,
         ]);
 
-        $time = time();
+        $time = \time();
         $jti = Uuid::uuid4()->toString();
 
         /** @var string $payload */

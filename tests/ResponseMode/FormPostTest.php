@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\ResponseMode;
 
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\ResponseMode\FormPost;
-use PHPUnit\Framework\TestCase;
 
 class FormPostTest extends TestCase
 {
-
     public function testParseParams(): void
     {
         $client = $this->prophesize(ClientInterface::class);

@@ -13,8 +13,7 @@ class FormPostJwtTest extends AbstractJwtTest
     protected function createResponseMode(
         JWTLoader $jwtLoader,
         ResponseModeInterface $baseResponseMode
-    ): ResponseModeInterface
-    {
+    ): ResponseModeInterface {
         return new FormPostJwt($jwtLoader, $baseResponseMode);
     }
 

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\Authorization;
 
-use TMV\OpenIdClient\Authorization\TokenResponse;
 use PHPUnit\Framework\TestCase;
+use TMV\OpenIdClient\Authorization\TokenResponse;
 
 class TokenResponseTest extends TestCase
 {
-
     public function testGetTokenType(): void
     {
         $tokenResponse = new TokenResponse();

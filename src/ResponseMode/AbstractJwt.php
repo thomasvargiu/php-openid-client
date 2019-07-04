@@ -14,11 +14,13 @@ abstract class AbstractJwt implements ResponseModeInterface
 {
     /** @var JWTLoader */
     protected $jwtLoader;
+
     /** @var ResponseModeInterface */
     protected $baseStrategy;
 
     /**
      * AbstractJwt constructor.
+     *
      * @param JWTLoader $jwtLoader
      * @param ResponseModeInterface $baseStrategy
      */
@@ -52,7 +54,7 @@ abstract class AbstractJwt implements ResponseModeInterface
 
         $params = \json_decode($jws->getPayload(), true);
 
-        if (!\is_array($params)) {
+        if (! \is_array($params)) {
             throw new RuntimeException('Invalid JWT payload');
         }
 

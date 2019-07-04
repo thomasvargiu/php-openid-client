@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\Authorization;
 
-use TMV\OpenIdClient\Authorization\AuthRequest;
 use PHPUnit\Framework\TestCase;
+use TMV\OpenIdClient\Authorization\AuthRequest;
 
 class AuthRequestTest extends TestCase
 {
-
     public function testFromParams(): void
     {
         $authRequest = AuthRequest::fromParams([

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\Service;
 
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
@@ -14,16 +15,14 @@ use Psr\Http\Message\UriInterface;
 use TMV\OpenIdClient\AuthMethod\AuthMethodFactoryInterface;
 use TMV\OpenIdClient\AuthMethod\AuthMethodInterface;
 use TMV\OpenIdClient\Authorization\AuthRequestInterface;
+use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\IssuerInterface;
 use TMV\OpenIdClient\Model\ClientMetadataInterface;
 use TMV\OpenIdClient\Model\IssuerMetadataInterface;
 use TMV\OpenIdClient\Service\AuthorizationService;
-use TMV\OpenIdClient\ClientInterface as OpenIDClient;
-use PHPUnit\Framework\TestCase;
 
 class AuthorizationServiceTest extends TestCase
 {
-
     public function testGetAuthorizationUri(): void
     {
         $client = $this->prophesize(ClientInterface::class);

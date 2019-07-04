@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\functions;
 
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use function TMV\OpenIdClient\checkServerResponse;
-use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\Exception\OAuth2Exception;
 use TMV\OpenIdClient\Exception\RemoteException;
 

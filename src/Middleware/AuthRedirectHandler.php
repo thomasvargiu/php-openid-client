@@ -19,8 +19,10 @@ class AuthRedirectHandler implements RequestHandlerInterface
 {
     /** @var AuthorizationService */
     private $authorizationService;
+
     /** @var ClientInterface */
     private $client;
+
     /** @var ResponseFactoryInterface */
     private $responseFactory;
 

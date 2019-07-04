@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\ResponseMode;
 
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use TMV\OpenIdClient\ClientInterface;
-use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\ResponseMode\Query;
 
 class QueryTest extends TestCase

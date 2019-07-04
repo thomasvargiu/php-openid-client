@@ -13,6 +13,7 @@ class AuthMethodFactory implements AuthMethodFactoryInterface
 
     /**
      * AuthMethodFactory constructor.
+     *
      * @param AuthMethodInterface[] $methods
      */
     public function __construct(array $methods = [])
