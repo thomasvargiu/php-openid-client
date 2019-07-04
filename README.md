@@ -1,5 +1,20 @@
 # php-openid-client
 
+Full OpenID client implementation.
+
+[![Latest Stable Version](https://poser.pugx.org/thomasvargiu/php-openid-client/v/stable)](https://packagist.org/packages/thomasvargiu/php-openid-client)
+[![Total Downloads](https://poser.pugx.org/thomasvargiu/php-openid-client/downloads)](https://packagist.org/packages/thomasvargiu/php-openid-client)
+[![License](https://poser.pugx.org/thomasvargiu/php-openid-client/license)](https://packagist.org/packages/thomasvargiu/php-openid-client)
+[![Code Coverage](https://scrutinizer-ci.com/g/thomasvargiu/php-openid-client/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/thomasvargiu/php-openid-client/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/thomasvargiu/php-openid-client/badges/build.png?b=master)](https://scrutinizer-ci.com/g/thomasvargiu/php-openid-client/build-status/master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/thomasvargiu/php-openid-client/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/thomasvargiu/php-openid-client/?branch=master)
+
+## Installation
+
+```
+composer require thomasvargiu/php-openid-client
+```
+
 ## Base implementation
 
 ```php
