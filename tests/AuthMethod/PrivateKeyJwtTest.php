@@ -14,7 +14,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
-use TMV\OpenIdClient\AuthMethod\PrivateKeyJwtAuth;
+use TMV\OpenIdClient\AuthMethod\PrivateKeyJwt;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\IssuerInterface;
 use TMV\OpenIdClient\Model\ClientMetadataInterface;
@@ -28,7 +28,7 @@ class PrivateKeyJwtTest extends TestCase
         $jwsBuilder = $this->prophesize(JWSBuilder::class);
         $serializer = $this->prophesize(Serializer::class);
 
-        $auth = new PrivateKeyJwtAuth(
+        $auth = new PrivateKeyJwt(
             $jwsBuilder->reveal(),
             $serializer->reveal(),
             null,
@@ -44,7 +44,7 @@ class PrivateKeyJwtTest extends TestCase
         $jwsBuilder = $this->prophesize(JWSBuilder::class);
         $serializer = $this->prophesize(Serializer::class);
 
-        $auth = new PrivateKeyJwtAuth(
+        $auth = new PrivateKeyJwt(
             $jwsBuilder->reveal(),
             $serializer->reveal(),
             null,

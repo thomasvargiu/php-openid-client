@@ -11,7 +11,7 @@ use Ramsey\Uuid\Uuid;
 use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\RuntimeException;
 
-final class PrivateKeyJwtAuth extends AbstractJwtAuth
+final class PrivateKeyJwt extends AbstractJwtAuth
 {
     /** @var JWSBuilder */
     private $jwsBuilder;
