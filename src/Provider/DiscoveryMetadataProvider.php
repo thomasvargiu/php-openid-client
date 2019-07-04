@@ -12,7 +12,7 @@ use Psr\Http\Message\RequestFactoryInterface;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use function TMV\OpenIdClient\parseMetadataResponse;
 
-class DiscoveryMetadataProvider
+class DiscoveryMetadataProvider implements DiscoveryMetadataProviderInterface
 {
     /** @var ClientInterface */
     private $client;
