@@ -11,6 +11,10 @@
         }
     ],
     "minimum-stability": "stable",
+    "keywords": [
+        "openid",
+        "oauth2"
+    ],
     "require": {
         "php": "^7.2",
         "ext-json": "*",

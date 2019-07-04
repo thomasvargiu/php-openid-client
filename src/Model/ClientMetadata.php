@@ -142,7 +142,7 @@ class ClientMetadata implements ClientMetadataInterface
     {
         return \array_filter($this->claims, static function ($value, string $key) {
             return \array_key_exists($key, static::$requiredKeys)
-                || $value !== static::$defaults[$key] ?? null;
+                || $value !== (static::$defaults[$key] ?? null);
         }, ARRAY_FILTER_USE_BOTH);
     }
 
