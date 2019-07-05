@@ -126,6 +126,16 @@ class ClientMetadata implements ClientMetadataInterface
         return $this->claims['request_object_signing_alg'] ?? null;
     }
 
+    public function getRequestObjectEncryptionAlg(): ?string
+    {
+        return $this->claims['request_object_encryption_alg'] ?? null;
+    }
+
+    public function getRequestObjectEncryptionEnc(): ?string
+    {
+        return $this->claims['request_object_encryption_enc'] ?? null;
+    }
+
     public function getIntrospectionEndpointAuthMethod(): string
     {
         return $this->claims['introspection_endpoint_auth_method'] ?? $this->getTokenEndpointAuthMethod();

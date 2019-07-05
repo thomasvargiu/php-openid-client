@@ -154,6 +154,32 @@ class ClientMetadataTest extends TestCase
         $this->assertSame('foo', $metadata->getRequestObjectSigningAlg());
     }
 
+    public function testGetRequestObjectEncryptionAlg(): void
+    {
+        $metadata = new ClientMetadata('foo', ['redirect_uris' => ['bar']]);
+
+        $this->assertNull($metadata->getRequestObjectEncryptionAlg());
+
+        $metadata = new ClientMetadata('foo', [
+            'request_object_encryption_alg' => 'foo',
+        ]);
+
+        $this->assertSame('foo', $metadata->getRequestObjectEncryptionAlg());
+    }
+
+    public function testGetRequestObjectEncryptionEnc(): void
+    {
+        $metadata = new ClientMetadata('foo', ['redirect_uris' => ['bar']]);
+
+        $this->assertNull($metadata->getRequestObjectEncryptionEnc());
+
+        $metadata = new ClientMetadata('foo', [
+            'request_object_encryption_enc' => 'foo',
+        ]);
+
+        $this->assertSame('foo', $metadata->getRequestObjectEncryptionEnc());
+    }
+
     public function testGetAuthorizationSignedResponseAlg(): void
     {
         $metadata = new ClientMetadata('foo', ['redirect_uris' => ['bar']]);
