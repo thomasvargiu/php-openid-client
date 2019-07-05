@@ -47,6 +47,10 @@ interface ClientMetadataInterface extends JsonSerializable
 
     public function getRequestObjectSigningAlg(): ?string;
 
+    public function getRequestObjectEncryptionAlg(): ?string;
+
+    public function getRequestObjectEncryptionEnc(): ?string;
+
     public function getIntrospectionEndpointAuthMethod(): string;
 
     public function getRevocationEndpointAuthMethod(): string;
