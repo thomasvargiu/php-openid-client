@@ -6,7 +6,6 @@ namespace TMV\OpenIdClientTest\ResponseMode;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\ResponseMode\FormPost;
 
@@ -16,10 +15,8 @@ class FormPostTest extends TestCase
     {
         $client = $this->prophesize(ClientInterface::class);
         $serverRequest = $this->prophesize(ServerRequestInterface::class);
-        $stream = $this->prophesize(StreamInterface::class);
 
-        $serverRequest->getBody()->willReturn($stream->reveal());
-        $stream->__toString()->willReturn('{"foo":"bar"}');
+        $serverRequest->getParsedBody()->willReturn(['foo' => 'bar']);
 
         $responseMode = new FormPost();
 
