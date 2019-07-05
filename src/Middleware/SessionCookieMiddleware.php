@@ -29,7 +29,7 @@ class SessionCookieMiddleware implements MiddlewareInterface
     /** @var int */
     private $randomBytes;
 
-    public function __construct(string $cookieName, ?int $cookieMaxAge = null, int $randomBytes = 32)
+    public function __construct(string $cookieName = 'openid', ?int $cookieMaxAge = null, int $randomBytes = 32)
     {
         $this->cookieName = $cookieName;
         $this->cookieMaxAge = $cookieMaxAge;
