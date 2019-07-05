@@ -11,7 +11,6 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
-use TMV\OpenIdClient\Authorization\AuthRequestInterface;
 use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use function TMV\OpenIdClient\parseMetadataResponse;
@@ -47,6 +46,7 @@ class AuthorizationService
     /**
      * @param OpenIDClient $client
      * @param array<string, mixed>|null $params
+     *
      * @return UriInterface
      */
     public function getAuthorizationUri(OpenIDClient $client, ?array $params = null): UriInterface
