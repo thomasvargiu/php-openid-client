@@ -59,7 +59,7 @@ class AuthRedirectHandler implements RequestHandlerInterface
             }
         }
 
-        $uri = $this->authorizationService->getAuthorizationUri($this->client, $authRequest);
+        $uri = $this->authorizationService->getAuthorizationUri($this->client, $authRequest->createParams());
 
         return $this->responseFactory->createResponse(302)
             ->withHeader('location', (string) $uri);

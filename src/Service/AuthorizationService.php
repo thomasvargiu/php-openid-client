@@ -44,14 +44,19 @@ class AuthorizationService
         $this->uriFactory = $uriFactory ?: Psr17FactoryDiscovery::findUrlFactory();
     }
 
-    public function getAuthorizationUri(OpenIDClient $client, ?AuthRequestInterface $authRequest = null): UriInterface
+    /**
+     * @param OpenIDClient $client
+     * @param array<string, mixed>|null $params
+     * @return UriInterface
+     */
+    public function getAuthorizationUri(OpenIDClient $client, ?array $params = null): UriInterface
     {
         $issuerMetadata = $client->getIssuer()->getMetadata();
         $endpointUri = $issuerMetadata->getAuthorizationEndpoint();
-        $authRequest = $authRequest ?: $client->getAuthRequest();
+        $params = $params ?: $client->getAuthRequest()->createParams();
 
         return $this->uriFactory->createUri($endpointUri)
-            ->withQuery(\http_build_query($authRequest->createParams()));
+            ->withQuery(\http_build_query($params));
     }
 
     public function fetchTokenFromCode(OpenIDClient $client, string $code): array

@@ -68,7 +68,6 @@ class AuthorizationServiceTest extends TestCase
         $openIdClient = $this->prophesize(OpenIDClient::class);
         $issuer = $this->prophesize(IssuerInterface::class);
         $issuerMetadata = $this->prophesize(IssuerMetadataInterface::class);
-        $authRequest = $this->prophesize(AuthRequestInterface::class);
         $uri = $this->prophesize(UriInterface::class);
         $uri2 = $this->prophesize(UriInterface::class);
 
@@ -76,13 +75,12 @@ class AuthorizationServiceTest extends TestCase
         $issuer->getMetadata()->willReturn($issuerMetadata);
         $issuerMetadata->getAuthorizationEndpoint()->willReturn('foo-endpoint');
         $openIdClient->getAuthRequest()->shouldNotBeCalled();
-        $authRequest->createParams()->willReturn(['foo' => 'bar']);
         $uriFactory->createUri('foo-endpoint')->willReturn($uri->reveal());
         $uri->withQuery('foo=bar')->willReturn($uri2->reveal());
 
         $this->assertSame(
             $uri2->reveal(),
-            $service->getAuthorizationUri($openIdClient->reveal(), $authRequest->reveal())
+            $service->getAuthorizationUri($openIdClient->reveal(), ['foo' => 'bar'])
         );
     }
 
