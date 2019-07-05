@@ -21,20 +21,20 @@ class AuthRedirectHandler implements RequestHandlerInterface
     /** @var AuthorizationService */
     private $authorizationService;
 
-    /** @var null|ClientInterface */
-    private $client;
-
     /** @var ResponseFactoryInterface */
     private $responseFactory;
 
+    /** @var null|ClientInterface */
+    private $client;
+
     public function __construct(
         AuthorizationService $authorizationService,
-        ?ClientInterface $client = null,
-        ?ResponseFactoryInterface $responseFactory = null
+        ?ResponseFactoryInterface $responseFactory = null,
+        ?ClientInterface $client = null
     ) {
         $this->authorizationService = $authorizationService;
-        $this->client = $client;
         $this->responseFactory = $responseFactory ?: Psr17FactoryDiscovery::findResponseFactory();
+        $this->client = $client;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface

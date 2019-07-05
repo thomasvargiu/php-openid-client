@@ -20,23 +20,23 @@ use TMV\OpenIdClient\ResponseMode\ResponseModeProviderInterface;
 
 class AuthTokenResponseMiddleware implements MiddlewareInterface
 {
-    /** @var null|ClientInterface */
-    private $client;
-
     /** @var AuthResponseFactoryInterface */
     private $authResponseFactory;
 
     /** @var null|ResponseModeProviderInterface */
     private $responseModeProvider;
 
+    /** @var null|ClientInterface */
+    private $client;
+
     public function __construct(
-        ?ClientInterface $client = null,
         ?AuthResponseFactoryInterface $authResponseFactory = null,
-        ?ResponseModeProviderInterface $responseModeProvider = null
+        ?ResponseModeProviderInterface $responseModeProvider = null,
+        ?ClientInterface $client = null
     ) {
-        $this->client = $client;
         $this->authResponseFactory = $authResponseFactory ?: new AuthResponseFactory();
         $this->responseModeProvider = $responseModeProvider;
+        $this->client = $client;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

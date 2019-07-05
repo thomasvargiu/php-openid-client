@@ -24,12 +24,6 @@ class UserInfoMiddleware implements MiddlewareInterface
     /** @var null|ClientInterface */
     private $client;
 
-    /**
-     * TokenRequestMiddleware constructor.
-     *
-     * @param UserinfoService $userinfoService
-     * @param null|ClientInterface $client
-     */
     public function __construct(
         UserinfoService $userinfoService,
         ?ClientInterface $client = null
