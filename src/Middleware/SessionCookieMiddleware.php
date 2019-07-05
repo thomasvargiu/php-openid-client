@@ -39,7 +39,7 @@ class SessionCookieMiddleware implements MiddlewareInterface
     private function generateStateRandomBytes(): string
     {
         try {
-            return \random_bytes($this->randomBytes);
+            return \bin2hex(\random_bytes($this->randomBytes));
         } catch (\Throwable $e) {
             throw new RuntimeException('Unable to generate random value for "state" parameter', 0, $e);
         }
