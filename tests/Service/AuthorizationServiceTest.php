@@ -131,7 +131,7 @@ class AuthorizationServiceTest extends TestCase
             ->willReturn($response->reveal());
         $response->getStatusCode()->willReturn(200);
         $response->getBody()->willReturn($stream->reveal());
-        $stream->getContents()->willReturn('{"foo":"bar"}');
+        $stream->__toString()->willReturn('{"foo":"bar"}');
 
         $this->assertSame(['foo' => 'bar'], $service->fetchTokenFromCode($openIdClient->reveal(), 'foo-code'));
     }

@@ -17,7 +17,7 @@ final class FormPost implements ResponseModeInterface
 
     public function parseParams(ServerRequestInterface $request, ClientInterface $client): array
     {
-        $data = \json_decode($request->getBody()->getContents(), true);
+        $data = \json_decode((string) $request->getBody(), true);
 
         if (! \is_array($data)) {
             throw new RuntimeException('Unable to decode response body');

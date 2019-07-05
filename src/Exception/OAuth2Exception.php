@@ -29,7 +29,7 @@ class OAuth2Exception extends RuntimeException implements JsonSerializable
      */
     public static function fromResponse(ResponseInterface $response, Throwable $previous = null): self
     {
-        $data = \json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode((string) $response->getBody(), true);
 
         if (! \is_array($data) || ! isset($data['error'])) {
             throw new RemoteException($response, $response->getReasonPhrase(), $response->getStatusCode(), $previous);

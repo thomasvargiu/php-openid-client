@@ -19,7 +19,7 @@ class FormPostTest extends TestCase
         $stream = $this->prophesize(StreamInterface::class);
 
         $serverRequest->getBody()->willReturn($stream->reveal());
-        $stream->getContents()->willReturn('{"foo":"bar"}');
+        $stream->__toString()->willReturn('{"foo":"bar"}');
 
         $responseMode = new FormPost();
 

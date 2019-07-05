@@ -18,7 +18,7 @@ function parseMetadataResponse(ResponseInterface $response, ?int $expectedCode =
     checkServerResponse($response, $expectedCode);
 
     /** @var bool|array<string, mixed> $data */
-    $data = \json_decode($response->getBody()->getContents(), true);
+    $data = \json_decode((string) $response->getBody(), true);
 
     if (! \is_array($data)) {
         throw new InvalidArgumentException('Invalid metadata content');

@@ -70,11 +70,11 @@ class UserinfoService
         $isJwt = $clientMetadata->getUserinfoSignedResponseAlg() || $clientMetadata->getUserinfoEncryptedResponseAlg();
 
         if ($isJwt && $this->jwtLoader) {
-            $payload = $this->jwtLoader->load($response->getBody()->getContents(), $client)->getPayload();
+            $payload = $this->jwtLoader->load((string) $response->getBody(), $client)->getPayload();
         } elseif ($isJwt) {
             throw new RuntimeException('No JWT loader provided to parse userinfo JWT');
         } else {
-            $payload = $response->getBody()->getContents();
+            $payload = (string) $response->getBody();
         }
 
         if (! \is_string($payload)) {

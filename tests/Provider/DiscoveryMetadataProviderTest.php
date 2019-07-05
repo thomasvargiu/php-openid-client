@@ -31,7 +31,7 @@ class DiscoveryMetadataProviderTest extends TestCase
 
         $response->getBody()->willReturn($stream->reveal());
         $response->getStatusCode()->willReturn(200);
-        $stream->getContents()->willReturn('{"issuer":"foo"}');
+        $stream->__toString()->willReturn('{"issuer":"foo"}');
 
         $requestFactory->createRequest('GET', $uri)
             ->willReturn($request->reveal());

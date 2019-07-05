@@ -22,7 +22,7 @@ class CheckServerResponseTest extends TestCase
         $response = $this->prophesize(ResponseInterface::class);
         $stream = $this->prophesize(StreamInterface::class);
 
-        $stream->getContents()->willReturn('');
+        $stream->__toString()->willReturn('');
         $response->getBody()->willReturn($stream->reveal());
         $response->getStatusCode()->willReturn(400);
         $response->getReasonPhrase()->willReturn('Error');
@@ -39,7 +39,7 @@ class CheckServerResponseTest extends TestCase
         $response = $this->prophesize(ResponseInterface::class);
         $stream = $this->prophesize(StreamInterface::class);
 
-        $stream->getContents()->willReturn('{"error":"foo"}');
+        $stream->__toString()->willReturn('{"error":"foo"}');
         $response->getBody()->willReturn($stream->reveal());
         $response->getStatusCode()->willReturn(400);
         $response->getReasonPhrase()->shouldNotBeCalled();
@@ -52,7 +52,7 @@ class CheckServerResponseTest extends TestCase
         $response = $this->prophesize(ResponseInterface::class);
         $stream = $this->prophesize(StreamInterface::class);
 
-        $stream->getContents()->willReturn('{"error":"foo"}');
+        $stream->__toString()->willReturn('{"error":"foo"}');
         $response->getBody()->willReturn($stream->reveal());
         $response->getStatusCode()->shouldBeCalled()->willReturn(400);
 
