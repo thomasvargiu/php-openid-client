@@ -10,6 +10,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TMV\OpenIdClient\Authorization\TokenResponseInterface;
 use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Exception\LogicException;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use TMV\OpenIdClient\Service\UserinfoService;
 
@@ -20,18 +21,18 @@ class UserInfoMiddleware implements MiddlewareInterface
     /** @var UserinfoService */
     private $userinfoService;
 
-    /** @var ClientInterface */
+    /** @var null|ClientInterface */
     private $client;
 
     /**
      * TokenRequestMiddleware constructor.
      *
      * @param UserinfoService $userinfoService
-     * @param ClientInterface $client
+     * @param null|ClientInterface $client
      */
     public function __construct(
         UserinfoService $userinfoService,
-        ClientInterface $client
+        ?ClientInterface $client = null
     ) {
         $this->userinfoService = $userinfoService;
         $this->client = $client;
@@ -40,6 +41,11 @@ class UserInfoMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $tokenResponse = $request->getAttribute(TokenResponseInterface::class);
+        $client = $this->client ?: $request->getAttribute(ClientInterface::class);
+
+        if (! $client instanceof ClientInterface) {
+            throw new LogicException('No OpenID client provided');
+        }
 
         if (! $tokenResponse instanceof TokenResponseInterface) {
             throw new RuntimeException('Unable to get token response attribute');
@@ -54,7 +60,7 @@ class UserInfoMiddleware implements MiddlewareInterface
             ));
         }
 
-        $claims = $this->userinfoService->getUserInfo($this->client, $accessToken);
+        $claims = $this->userinfoService->getUserInfo($client, $accessToken);
 
         return $handler->handle($request->withAttribute(static::USERINFO_ATTRIBUTE, $claims));
     }

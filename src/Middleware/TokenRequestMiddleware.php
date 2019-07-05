@@ -13,6 +13,7 @@ use TMV\OpenIdClient\Authorization\TokenResponseFactory;
 use TMV\OpenIdClient\Authorization\TokenResponseFactoryInterface;
 use TMV\OpenIdClient\Authorization\TokenResponseInterface;
 use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Exception\LogicException;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use TMV\OpenIdClient\Service\AuthorizationService;
 
@@ -21,7 +22,7 @@ class TokenRequestMiddleware implements MiddlewareInterface
     /** @var AuthorizationService */
     private $authorizationService;
 
-    /** @var ClientInterface */
+    /** @var null|ClientInterface */
     private $client;
 
     /** @var TokenResponseFactoryInterface */
@@ -31,12 +32,12 @@ class TokenRequestMiddleware implements MiddlewareInterface
      * TokenRequestMiddleware constructor.
      *
      * @param AuthorizationService $authorizationService
-     * @param ClientInterface $client
+     * @param null|ClientInterface $client
      * @param null|TokenResponseFactoryInterface $tokenResponseFactory
      */
     public function __construct(
         AuthorizationService $authorizationService,
-        ClientInterface $client,
+        ?ClientInterface $client = null,
         ?TokenResponseFactoryInterface $tokenResponseFactory = null
     ) {
         $this->authorizationService = $authorizationService;
@@ -47,6 +48,11 @@ class TokenRequestMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $authResponse = $request->getAttribute(AuthResponseInterface::class);
+        $client = $this->client ?: $request->getAttribute(ClientInterface::class);
+
+        if (! $client instanceof ClientInterface) {
+            throw new LogicException('No OpenID client provided');
+        }
 
         if (! $authResponse instanceof AuthResponseInterface) {
             throw new RuntimeException('Unable to get auth token response attribute');
@@ -58,7 +64,7 @@ class TokenRequestMiddleware implements MiddlewareInterface
             throw new RuntimeException('Unable to get auth code');
         }
 
-        $claims = $this->authorizationService->fetchTokenFromCode($this->client, $code);
+        $claims = $this->authorizationService->fetchTokenFromCode($client, $code);
         $tokenResponse = $this->tokenResponseFactory->createFromClaims($claims);
 
         return $handler->handle($request->withAttribute(TokenResponseInterface::class, $tokenResponse));

@@ -11,6 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TMV\OpenIdClient\Authorization\AuthRequestInterface;
 use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Exception\LogicException;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use TMV\OpenIdClient\Model\AuthSessionInterface;
 use TMV\OpenIdClient\Service\AuthorizationService;
@@ -20,7 +21,7 @@ class AuthRedirectHandler implements RequestHandlerInterface
     /** @var AuthorizationService */
     private $authorizationService;
 
-    /** @var ClientInterface */
+    /** @var null|ClientInterface */
     private $client;
 
     /** @var ResponseFactoryInterface */
@@ -28,7 +29,7 @@ class AuthRedirectHandler implements RequestHandlerInterface
 
     public function __construct(
         AuthorizationService $authorizationService,
-        ClientInterface $client,
+        ?ClientInterface $client = null,
         ?ResponseFactoryInterface $responseFactory = null
     ) {
         $this->authorizationService = $authorizationService;
@@ -39,11 +40,12 @@ class AuthRedirectHandler implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $authRequest = $request->getAttribute(AuthRequestInterface::class);
-        $authSession = $request->getAttribute(AuthSessionInterface::class);
 
         if (! $authRequest instanceof AuthRequestInterface) {
             throw new RuntimeException('Unable to find a valid attribute for ' . AuthRequestInterface::class);
         }
+
+        $authSession = $request->getAttribute(AuthSessionInterface::class);
 
         if ($authSession instanceof AuthSessionInterface) {
             if ($state = $authRequest->getState()) {
@@ -59,7 +61,13 @@ class AuthRedirectHandler implements RequestHandlerInterface
             }
         }
 
-        $uri = $this->authorizationService->getAuthorizationUri($this->client, $authRequest->createParams());
+        $client = $this->client ?: $request->getAttribute(ClientInterface::class);
+
+        if (! $client instanceof ClientInterface) {
+            throw new LogicException('No OpenID client provided');
+        }
+
+        $uri = $this->authorizationService->getAuthorizationUri($client, $authRequest->createParams());
 
         return $this->responseFactory->createResponse(302)
             ->withHeader('location', (string) $uri);
