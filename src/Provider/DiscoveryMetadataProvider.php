@@ -30,7 +30,9 @@ class DiscoveryMetadataProvider implements DiscoveryMetadataProviderInterface
 
     public function discovery(string $uri): array
     {
-        $request = $this->requestFactory->createRequest('GET', $uri);
+        $request = $this->requestFactory->createRequest('GET', $uri)
+            ->withHeader('accept', 'application/json')
+            ->withHeader('content-type', 'application/json');
 
         try {
             $response = $this->client->sendRequest($request);

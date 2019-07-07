@@ -25,7 +25,9 @@ class DiscoveryMetadataProviderTest extends TestCase
             $requestFactory->reveal()
         );
 
-        $request = $this->prophesize(RequestInterface::class);
+        $request1 = $this->prophesize(RequestInterface::class);
+        $request2 = $this->prophesize(RequestInterface::class);
+        $request3 = $this->prophesize(RequestInterface::class);
         $response = $this->prophesize(ResponseInterface::class);
         $stream = $this->prophesize(StreamInterface::class);
 
@@ -33,10 +35,18 @@ class DiscoveryMetadataProviderTest extends TestCase
         $response->getStatusCode()->willReturn(200);
         $stream->__toString()->willReturn('{"issuer":"foo"}');
 
-        $requestFactory->createRequest('GET', $uri)
-            ->willReturn($request->reveal());
+        $request1->withHeader('accept', 'application/json')
+            ->shouldBeCalled()
+            ->willReturn($request2->reveal());
 
-        $client->sendRequest($request->reveal())
+        $request2->withHeader('content-type', 'application/json')
+            ->shouldBeCalled()
+            ->willReturn($request3->reveal());
+
+        $requestFactory->createRequest('GET', $uri)
+            ->willReturn($request1->reveal());
+
+        $client->sendRequest($request3->reveal())
             ->willReturn($response->reveal());
 
         $this->assertSame(['issuer' => 'foo'], $provider->discovery($uri));
