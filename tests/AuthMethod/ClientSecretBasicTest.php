@@ -33,7 +33,7 @@ class ClientSecretBasicTest extends TestCase
         $metadata->getClientId()->willReturn('foo');
         $metadata->getClientSecret()->willReturn('bar');
 
-        $request->withHeader('Authentication', 'Basic ' . \base64_encode('foo:bar'))
+        $request->withHeader('Authorization', 'Basic ' . \base64_encode('foo:bar'))
             ->shouldBeCalled()
             ->willReturn($requestWithHeader->reveal());
 

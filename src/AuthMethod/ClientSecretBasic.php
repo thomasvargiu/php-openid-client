@@ -28,7 +28,7 @@ final class ClientSecretBasic implements AuthMethodInterface
         }
 
         $request = $request->withHeader(
-            'Authentication',
+            'Authorization',
             'Basic ' . \base64_encode($clientId . ':' . $clientSecret)
         );
 
