@@ -6,12 +6,14 @@ namespace TMV\OpenIdClient\Service;
 
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
+use JsonSerializable;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 use TMV\OpenIdClient\ClientInterface as OpenIDClient;
+use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use function TMV\OpenIdClient\parseMetadataResponse;
 
@@ -54,6 +56,20 @@ class AuthorizationService
         $issuerMetadata = $client->getIssuer()->getMetadata();
         $endpointUri = $issuerMetadata->getAuthorizationEndpoint();
         $params = $params ?: $client->getAuthRequest()->createParams();
+
+        foreach ($params as $key => $value) {
+            if (null === $value) {
+                unset($params[$key]);
+            } elseif ('claims' === $key && (\is_array($value) || $value instanceof JsonSerializable)) {
+                $params['claims'] = \json_encode($value);
+            } elseif (! \is_string($value)) {
+                $params[$key] = (string) $value;
+            }
+        }
+
+        if (empty($params['nonce']) && \in_array('id_token', \explode(' ', $params['response_type'] ?? ''), true)) {
+            throw new InvalidArgumentException('nonce MUST be provided for implicit and hybrid flows');
+        }
 
         return $this->uriFactory->createUri($endpointUri)
             ->withQuery(\http_build_query($params));
