@@ -11,7 +11,6 @@ use Jose\Component\Signature\Serializer\Serializer;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\ClientSecretJwt;
 use TMV\OpenIdClient\ClientInterface;
@@ -23,27 +22,22 @@ class ClientSecretJwtTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
-        $streamFactory = $this->prophesize(StreamFactoryInterface::class);
-
-        $auth = new ClientSecretJwt($streamFactory->reveal());
+        $auth = new ClientSecretJwt();
         $this->assertSame('client_secret_jwt', $auth->getSupportedMethod());
     }
 
     public function testCreateRequest(): void
     {
-        $streamFactory = $this->prophesize(StreamFactoryInterface::class);
         $jwsBuilder = $this->prophesize(JWSBuilder::class);
         $serializer = $this->prophesize(Serializer::class);
 
         $auth = new ClientSecretJwt(
-            $streamFactory->reveal(),
             $jwsBuilder->reveal(),
             $serializer->reveal()
         );
 
         $stream = $this->prophesize(StreamInterface::class);
         $request = $this->prophesize(RequestInterface::class);
-        $requestWithBody = $this->prophesize(RequestInterface::class);
         $client = $this->prophesize(ClientInterface::class);
         $metadata = $this->prophesize(ClientMetadataInterface::class);
         $issuer = $this->prophesize(IssuerInterface::class);
@@ -113,13 +107,10 @@ class ClientSecretJwtTest extends TestCase
             'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
             'client_assertion' => 'assertion',
         ]);
-        $streamFactory->createStream($body)
-            ->shouldBeCalled()
-            ->willReturn($stream->reveal());
 
-        $request->withBody($stream->reveal())
-            ->shouldBeCalled()
-            ->willReturn($requestWithBody->reveal());
+        $stream->write($body)->shouldBeCalled();
+
+        $request->getBody()->willReturn($stream->reveal());
 
         $result = $auth->createRequest(
             $request->reveal(),
@@ -127,6 +118,6 @@ class ClientSecretJwtTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($requestWithBody->reveal(), $result);
+        $this->assertSame($request->reveal(), $result);
     }
 }

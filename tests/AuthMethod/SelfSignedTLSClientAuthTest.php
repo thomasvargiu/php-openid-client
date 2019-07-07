@@ -6,7 +6,6 @@ namespace TMV\OpenIdClientTest\AuthMethod;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\SelfSignedTLSClientAuth;
 use TMV\OpenIdClient\ClientInterface;
@@ -16,21 +15,16 @@ class SelfSignedTLSClientAuthTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
-        $streamFactory = $this->prophesize(StreamFactoryInterface::class);
-
-        $auth = new SelfSignedTLSClientAuth($streamFactory->reveal());
+        $auth = new SelfSignedTLSClientAuth();
         $this->assertSame('self_signed_tls_client_auth', $auth->getSupportedMethod());
     }
 
     public function testCreateRequest(): void
     {
-        $streamFactory = $this->prophesize(StreamFactoryInterface::class);
-
-        $auth = new SelfSignedTLSClientAuth($streamFactory->reveal());
+        $auth = new SelfSignedTLSClientAuth();
 
         $stream = $this->prophesize(StreamInterface::class);
         $request = $this->prophesize(RequestInterface::class);
-        $requestWithBody = $this->prophesize(RequestInterface::class);
         $client = $this->prophesize(ClientInterface::class);
         $metadata = $this->prophesize(ClientMetadataInterface::class);
 
@@ -38,13 +32,9 @@ class SelfSignedTLSClientAuthTest extends TestCase
         $metadata->getClientId()->willReturn('foo');
         $metadata->getClientSecret()->shouldNotBeCalled();
 
-        $streamFactory->createStream('foo=bar&client_id=foo')
-            ->shouldBeCalled()
-            ->willReturn($stream->reveal());
+        $stream->write('foo=bar&client_id=foo')->shouldBeCalled();
 
-        $request->withBody($stream->reveal())
-            ->shouldBeCalled()
-            ->willReturn($requestWithBody->reveal());
+        $request->getBody()->willReturn($stream->reveal());
 
         $result = $auth->createRequest(
             $request->reveal(),
@@ -52,6 +42,6 @@ class SelfSignedTLSClientAuthTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($requestWithBody->reveal(), $result);
+        $this->assertSame($request->reveal(), $result);
     }
 }

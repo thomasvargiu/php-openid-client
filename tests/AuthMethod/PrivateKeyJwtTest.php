@@ -12,7 +12,6 @@ use Jose\Component\Signature\Serializer\Serializer;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\PrivateKeyJwt;
 use TMV\OpenIdClient\ClientInterface;
@@ -24,7 +23,6 @@ class PrivateKeyJwtTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
-        $streamFactory = $this->prophesize(StreamFactoryInterface::class);
         $jwsBuilder = $this->prophesize(JWSBuilder::class);
         $serializer = $this->prophesize(Serializer::class);
 
@@ -32,15 +30,13 @@ class PrivateKeyJwtTest extends TestCase
             $jwsBuilder->reveal(),
             $serializer->reveal(),
             null,
-            60,
-            $streamFactory->reveal()
+            60
         );
         $this->assertSame('private_key_jwt', $auth->getSupportedMethod());
     }
 
     public function testCreateRequest(): void
     {
-        $streamFactory = $this->prophesize(StreamFactoryInterface::class);
         $jwsBuilder = $this->prophesize(JWSBuilder::class);
         $serializer = $this->prophesize(Serializer::class);
 
@@ -48,13 +44,11 @@ class PrivateKeyJwtTest extends TestCase
             $jwsBuilder->reveal(),
             $serializer->reveal(),
             null,
-            60,
-            $streamFactory->reveal()
+            60
         );
 
         $stream = $this->prophesize(StreamInterface::class);
         $request = $this->prophesize(RequestInterface::class);
-        $requestWithBody = $this->prophesize(RequestInterface::class);
         $client = $this->prophesize(ClientInterface::class);
         $metadata = $this->prophesize(ClientMetadataInterface::class);
         $issuer = $this->prophesize(IssuerInterface::class);
@@ -123,13 +117,9 @@ class PrivateKeyJwtTest extends TestCase
             'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
             'client_assertion' => 'assertion',
         ]);
-        $streamFactory->createStream($body)
-            ->shouldBeCalled()
-            ->willReturn($stream->reveal());
 
-        $request->withBody($stream->reveal())
-            ->shouldBeCalled()
-            ->willReturn($requestWithBody->reveal());
+        $stream->write($body)->shouldBeCalled();
+        $request->getBody()->willReturn($stream->reveal());
 
         $result = $auth->createRequest(
             $request->reveal(),
@@ -137,6 +127,6 @@ class PrivateKeyJwtTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($requestWithBody->reveal(), $result);
+        $this->assertSame($request->reveal(), $result);
     }
 }

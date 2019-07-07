@@ -6,7 +6,6 @@ namespace TMV\OpenIdClientTest\AuthMethod;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\ClientSecretPost;
 use TMV\OpenIdClient\ClientInterface;
@@ -16,21 +15,16 @@ class ClientSecretPostTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
-        $streamFactory = $this->prophesize(StreamFactoryInterface::class);
-
-        $auth = new ClientSecretPost($streamFactory->reveal());
+        $auth = new ClientSecretPost();
         $this->assertSame('client_secret_post', $auth->getSupportedMethod());
     }
 
     public function testCreateRequest(): void
     {
-        $streamFactory = $this->prophesize(StreamFactoryInterface::class);
-
-        $auth = new ClientSecretPost($streamFactory->reveal());
+        $auth = new ClientSecretPost();
 
         $stream = $this->prophesize(StreamInterface::class);
         $request = $this->prophesize(RequestInterface::class);
-        $requestWithBody = $this->prophesize(RequestInterface::class);
         $client = $this->prophesize(ClientInterface::class);
         $metadata = $this->prophesize(ClientMetadataInterface::class);
 
@@ -38,13 +32,10 @@ class ClientSecretPostTest extends TestCase
         $metadata->getClientId()->willReturn('foo');
         $metadata->getClientSecret()->willReturn('bar');
 
-        $streamFactory->createStream('foo=bar&client_id=foo&client_secret=bar')
-            ->shouldBeCalled()
-            ->willReturn($stream->reveal());
+        $stream->write('foo=bar&client_id=foo&client_secret=bar')
+            ->shouldBeCalled();
 
-        $request->withBody($stream->reveal())
-            ->shouldBeCalled()
-            ->willReturn($requestWithBody->reveal());
+        $request->getBody()->willReturn($stream);
 
         $result = $auth->createRequest(
             $request->reveal(),
@@ -52,6 +43,6 @@ class ClientSecretPostTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($requestWithBody->reveal(), $result);
+        $this->assertSame($request->reveal(), $result);
     }
 }

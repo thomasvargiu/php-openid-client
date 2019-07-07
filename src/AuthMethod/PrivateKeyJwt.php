@@ -6,8 +6,6 @@ namespace TMV\OpenIdClient\AuthMethod;
 
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\Serializer;
-use Psr\Http\Message\StreamFactoryInterface;
-use Ramsey\Uuid\Uuid;
 use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\RuntimeException;
 
@@ -32,17 +30,13 @@ final class PrivateKeyJwt extends AbstractJwtAuth
      * @param Serializer $serializer
      * @param string|null $kid
      * @param int $tokenTTL
-     * @param null|StreamFactoryInterface $streamFactory
      */
     public function __construct(
         JWSBuilder $jwsBuilder,
         Serializer $serializer,
         ?string $kid = null,
-        int $tokenTTL = 60,
-        ?StreamFactoryInterface $streamFactory = null
+        int $tokenTTL = 60
     ) {
-        parent::__construct($streamFactory);
-
         $this->jwsBuilder = $jwsBuilder;
         $this->jwsSerializer = $serializer;
         $this->kid = $kid;
@@ -68,7 +62,7 @@ final class PrivateKeyJwt extends AbstractJwtAuth
         }
 
         $time = \time();
-        $jti = Uuid::uuid4()->toString();
+        $jti = \bin2hex(\random_bytes(32));
 
         /** @var string $payload */
         $payload = \json_encode(\array_merge(

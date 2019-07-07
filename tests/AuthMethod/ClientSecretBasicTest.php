@@ -6,7 +6,6 @@ namespace TMV\OpenIdClientTest\AuthMethod;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\ClientSecretBasic;
 use TMV\OpenIdClient\ClientInterface;
@@ -16,22 +15,17 @@ class ClientSecretBasicTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
-        $streamFactory = $this->prophesize(StreamFactoryInterface::class);
-
-        $auth = new ClientSecretBasic($streamFactory->reveal());
+        $auth = new ClientSecretBasic();
         $this->assertSame('client_secret_basic', $auth->getSupportedMethod());
     }
 
     public function testCreateRequest(): void
     {
-        $streamFactory = $this->prophesize(StreamFactoryInterface::class);
-
-        $auth = new ClientSecretBasic($streamFactory->reveal());
+        $auth = new ClientSecretBasic();
 
         $stream = $this->prophesize(StreamInterface::class);
         $request = $this->prophesize(RequestInterface::class);
         $requestWithHeader = $this->prophesize(RequestInterface::class);
-        $requestWithBody = $this->prophesize(RequestInterface::class);
         $client = $this->prophesize(ClientInterface::class);
         $metadata = $this->prophesize(ClientMetadataInterface::class);
 
@@ -39,17 +33,14 @@ class ClientSecretBasicTest extends TestCase
         $metadata->getClientId()->willReturn('foo');
         $metadata->getClientSecret()->willReturn('bar');
 
-        $streamFactory->createStream('foo=bar')
-            ->shouldBeCalled()
-            ->willReturn($stream->reveal());
-
         $request->withHeader('Authentication', 'Basic ' . \base64_encode('foo:bar'))
             ->shouldBeCalled()
             ->willReturn($requestWithHeader->reveal());
 
-        $requestWithHeader->withBody($stream->reveal())
-            ->shouldBeCalled()
-            ->willReturn($requestWithBody->reveal());
+        $requestWithHeader->getBody()
+            ->willReturn($stream->reveal());
+
+        $stream->write('foo=bar')->shouldBeCalled();
 
         $result = $auth->createRequest(
             $request->reveal(),
@@ -57,6 +48,6 @@ class ClientSecretBasicTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($requestWithBody->reveal(), $result);
+        $this->assertSame($requestWithHeader->reveal(), $result);
     }
 }

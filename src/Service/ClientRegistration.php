@@ -9,7 +9,6 @@ use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use function TMV\OpenIdClient\checkServerResponse;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\RuntimeException;
@@ -24,9 +23,6 @@ class ClientRegistration
     /** @var RequestFactoryInterface */
     private $requestFactory;
 
-    /** @var StreamFactoryInterface */
-    private $streamFactory;
-
     /** @var string[] */
     private static $registrationClaims = [
         'registration_access_token',
@@ -40,16 +36,13 @@ class ClientRegistration
      *
      * @param null|ClientInterface $client
      * @param null|RequestFactoryInterface $requestFactory
-     * @param null|StreamFactoryInterface $streamFactory
      */
     public function __construct(
         ?ClientInterface $client = null,
-        ?RequestFactoryInterface $requestFactory = null,
-        ?StreamFactoryInterface $streamFactory = null
+        ?RequestFactoryInterface $requestFactory = null
     ) {
         $this->client = $client ?: Psr18ClientDiscovery::find();
         $this->requestFactory = $requestFactory ?: Psr17FactoryDiscovery::findRequestFactory();
-        $this->streamFactory = $streamFactory ?: Psr17FactoryDiscovery::findStreamFactory();
     }
 
     public function register(
@@ -71,8 +64,9 @@ class ClientRegistration
 
         $request = $this->requestFactory->createRequest('POST', $registrationEndpoint)
             ->withHeader('content-type', 'application/json')
-            ->withHeader('accept', 'application/json')
-            ->withBody($this->streamFactory->createStream($encodedMetadata));
+            ->withHeader('accept', 'application/json');
+
+        $request->getBody()->write($encodedMetadata);
 
         if ($initialToken) {
             $request = $request->withHeader('authorization', 'Bearer ' . $initialToken);
@@ -133,8 +127,9 @@ class ClientRegistration
         $request = $this->requestFactory->createRequest('PUT', $clientUri)
             ->withHeader('accept', 'application/json')
             ->withHeader('content-type', 'application/json')
-            ->withHeader('authorization', 'Bearer ' . $accessToken)
-            ->withBody($this->streamFactory->createStream($encodedMetadata));
+            ->withHeader('authorization', 'Bearer ' . $accessToken);
+
+        $request->getBody()->write($encodedMetadata);
 
         try {
             $response = $this->client->sendRequest($request);
