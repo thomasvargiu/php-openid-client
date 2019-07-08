@@ -6,50 +6,46 @@ namespace TMV\OpenIdClient\Model;
 
 class AuthSession implements AuthSessionInterface
 {
-    private $values = [];
+    /** @var null|string */
+    private $state;
 
-    public function has(string $name): bool
+    /** @var null|string */
+    private $nonce;
+
+    public function getState(): ?string
     {
-        return \array_key_exists($name, $this->values);
+        return $this->state;
     }
 
-    public function set(string $name, $value): void
+    public function getNonce(): ?string
     {
-        $this->values[$name] = $value;
+        return $this->nonce;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return null|mixed
-     */
-    public function get(string $name)
+    public function setState(?string $state): void
     {
-        return $this->values[$name] ?? null;
+        $this->state = $state;
     }
 
-    public function del(string $name): void
+    public function setNonce(?string $nonce): void
     {
-        if ($this->has($name)) {
-            unset($this->values[$name]);
-        }
+        $this->nonce = $nonce;
     }
 
-    public function all(): array
+    public static function fromArray(array $array): AuthSessionInterface
     {
-        return $this->values;
+        $session = new self();
+        $session->setState($array['state'] ?? null);
+        $session->setNonce($array['nonce'] ?? null);
+
+        return $session;
     }
 
-    public function clear(): void
+    public function jsonSerialize()
     {
-        $this->values = [];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->values;
+        return [
+            'state' => $this->getState(),
+            'nonce' => $this->getNonce(),
+        ];
     }
 }

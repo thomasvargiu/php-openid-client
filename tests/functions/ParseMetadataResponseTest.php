@@ -10,7 +10,7 @@ use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\OAuth2Exception;
 use TMV\OpenIdClient\Exception\RemoteException;
-use function TMV\OpenIdClient\parseMetadataResponse;
+use function TMV\OpenIdClient\parse_metadata_response;
 
 class ParseMetadataResponseTest extends TestCase
 {
@@ -23,7 +23,7 @@ class ParseMetadataResponseTest extends TestCase
         $response->getBody()->willReturn($stream->reveal());
         $response->getStatusCode()->willReturn(200);
 
-        $data = parseMetadataResponse($response->reveal());
+        $data = parse_metadata_response($response->reveal());
 
         $this->assertSame(['foo' => 'bar'], $data);
     }
@@ -40,7 +40,7 @@ class ParseMetadataResponseTest extends TestCase
         $response->getBody()->willReturn($stream->reveal());
         $response->getStatusCode()->willReturn(200);
 
-        parseMetadataResponse($response->reveal());
+        parse_metadata_response($response->reveal());
     }
 
     public function testErrorStatusCode(): void
@@ -57,7 +57,7 @@ class ParseMetadataResponseTest extends TestCase
         $response->getStatusCode()->willReturn(400);
         $response->getReasonPhrase()->willReturn('Error');
 
-        parseMetadataResponse($response->reveal());
+        parse_metadata_response($response->reveal());
     }
 
     public function testErrorStatusCodeWithOAuth2Error(): void
@@ -74,7 +74,7 @@ class ParseMetadataResponseTest extends TestCase
         $response->getStatusCode()->willReturn(400);
         $response->getReasonPhrase()->shouldNotBeCalled();
 
-        parseMetadataResponse($response->reveal());
+        parse_metadata_response($response->reveal());
     }
 
     public function testErrorStatusCodeWithExpectedCode(): void
@@ -86,6 +86,6 @@ class ParseMetadataResponseTest extends TestCase
         $response->getBody()->willReturn($stream->reveal());
         $response->getStatusCode()->shouldBeCalled()->willReturn(400);
 
-        parseMetadataResponse($response->reveal(), 400);
+        parse_metadata_response($response->reveal(), 400);
     }
 }

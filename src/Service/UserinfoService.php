@@ -13,33 +13,42 @@ use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\OAuth2Exception;
 use TMV\OpenIdClient\Exception\RuntimeException;
-use TMV\OpenIdClient\JWT\JWTLoader;
+use TMV\OpenIdClient\Token\IdTokenVerifier;
+use TMV\OpenIdClient\Token\IdTokenVerifierInterface;
+use TMV\OpenIdClient\Token\TokenDecrypter;
+use TMV\OpenIdClient\Token\TokenDecrypterInterface;
 
 class UserinfoService
 {
-    /** @var null|JWTLoader */
-    private $jwtLoader;
-
     /** @var ClientInterface */
     private $client;
 
     /** @var RequestFactoryInterface */
     private $requestFactory;
 
+    /** @var IdTokenVerifierInterface */
+    private $idTokenVerifier;
+
+    /** @var TokenDecrypterInterface */
+    private $idTokenDecrypter;
+
     /**
      * UserinfoService constructor.
      *
-     * @param null|JWTLoader $jwtLoader
      * @param null|ClientInterface $client
+     * @param IdTokenVerifierInterface|null $idTokenVerifier
+     * @param TokenDecrypterInterface|null $idTokenDecrypter
      * @param null|RequestFactoryInterface $requestFactory
      */
     public function __construct(
-        ?JWTLoader $jwtLoader = null,
         ?ClientInterface $client = null,
+        ?IdTokenVerifierInterface $idTokenVerifier = null,
+        ?TokenDecrypterInterface $idTokenDecrypter = null,
         ?RequestFactoryInterface $requestFactory = null
     ) {
-        $this->jwtLoader = $jwtLoader;
         $this->client = $client ?: Psr18ClientDiscovery::find();
+        $this->idTokenVerifier = $idTokenVerifier ?: new IdTokenVerifier();
+        $this->idTokenDecrypter = $idTokenDecrypter ?: new TokenDecrypter();
         $this->requestFactory = $requestFactory ?: Psr17FactoryDiscovery::findRequestFactory();
     }
 
@@ -69,16 +78,11 @@ class UserinfoService
 
         $isJwt = $clientMetadata->getUserinfoSignedResponseAlg() || $clientMetadata->getUserinfoEncryptedResponseAlg();
 
-        if ($isJwt && $this->jwtLoader) {
-            $payload = $this->jwtLoader->load((string) $response->getBody(), $client)->getPayload();
-        } elseif ($isJwt) {
-            throw new RuntimeException('No JWT loader provided to parse userinfo JWT');
+        if ($isJwt) {
+            $token = $this->idTokenDecrypter->decryptToken($client, (string) $response->getBody(), 'userinfo');
+            $payload = $this->idTokenVerifier->validateUserinfoToken($client, $token);
         } else {
-            $payload = (string) $response->getBody();
-        }
-
-        if (! \is_string($payload)) {
-            throw new RuntimeException('Unable to parse userinfo claims');
+            $payload = \json_decode((string) $response->getBody(), true);
         }
 
         $claims = \json_decode($payload, true);

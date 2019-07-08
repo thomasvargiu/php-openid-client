@@ -8,11 +8,11 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use TMV\OpenIdClient\Authorization\TokenResponseInterface;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\Exception\LogicException;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use TMV\OpenIdClient\Service\UserinfoService;
+use TMV\OpenIdClient\Token\TokenSetInterface;
 
 class UserInfoMiddleware implements MiddlewareInterface
 {
@@ -34,23 +34,23 @@ class UserInfoMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $tokenResponse = $request->getAttribute(TokenResponseInterface::class);
+        $tokenSet = $request->getAttribute(TokenSetInterface::class);
         $client = $this->client ?: $request->getAttribute(ClientInterface::class);
 
         if (! $client instanceof ClientInterface) {
             throw new LogicException('No OpenID client provided');
         }
 
-        if (! $tokenResponse instanceof TokenResponseInterface) {
+        if (! $tokenSet instanceof TokenSetInterface) {
             throw new RuntimeException('Unable to get token response attribute');
         }
 
-        $accessToken = $tokenResponse->getAccessToken();
+        $accessToken = $tokenSet->getAccessToken();
 
         if (! $accessToken) {
             throw new RuntimeException(\sprintf(
                 'Unable to get access token from "%s" attribute',
-                TokenResponseInterface::class
+                TokenSetInterface::class
             ));
         }
 

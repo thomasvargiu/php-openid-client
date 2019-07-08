@@ -31,6 +31,11 @@ interface ClientMetadataInterface extends JsonSerializable
      */
     public function getRedirectUris(): array;
 
+    /**
+     * @return string[]
+     */
+    public function getResponseTypes(): array;
+
     public function getTokenEndpointAuthMethod(): string;
 
     public function getAuthorizationSignedResponseAlg(): ?string;
@@ -38,6 +43,12 @@ interface ClientMetadataInterface extends JsonSerializable
     public function getAuthorizationEncryptedResponseAlg(): ?string;
 
     public function getAuthorizationEncryptedResponseEnc(): ?string;
+
+    public function getIdTokenSignedResponseAlg(): string;
+
+    public function getIdTokenEncryptedResponseAlg(): ?string;
+
+    public function getIdTokenEncryptedResponseEnc(): ?string;
 
     public function getUserinfoSignedResponseAlg(): ?string;
 

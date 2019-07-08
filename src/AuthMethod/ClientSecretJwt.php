@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace TMV\OpenIdClient\AuthMethod;
 
 use Jose\Component\Core\AlgorithmManager;
-use Jose\Component\Core\JWK;
 use Jose\Component\Signature\Algorithm\HS256;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\CompactSerializer;
 use Jose\Component\Signature\Serializer\Serializer;
 use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
+use TMV\OpenIdClient\Exception\LogicException;
+use function TMV\OpenIdClient\jose_secret_key;
 
 final class ClientSecretJwt extends AbstractJwtAuth
 {
@@ -31,6 +32,10 @@ final class ClientSecretJwt extends AbstractJwtAuth
         ?JWSBuilder $jwsBuilder = null,
         ?Serializer $jwsSerializer = null
     ) {
+        if (! $jwsBuilder && ! \class_exists(HS256::class)) {
+            throw new LogicException('To use the client_secret_jwt auth method you should install web-token/jwt-signature-algorithm-hmac package');
+        }
+
         $this->jwsBuilder = $jwsBuilder ?: new JWSBuilder(new AlgorithmManager([new HS256()]));
         $this->jwsSerializer = $jwsSerializer ?: new CompactSerializer();
     }
@@ -52,10 +57,7 @@ final class ClientSecretJwt extends AbstractJwtAuth
             throw new InvalidArgumentException($this->getSupportedMethod() . ' cannot be used without client_secret metadata');
         }
 
-        $jwk = new JWK([
-            'kty' => 'oct',
-            'k' => $clientSecret,
-        ]);
+        $jwk = jose_secret_key($clientSecret);
 
         $time = \time();
         $jti = \bin2hex(\random_bytes(32));

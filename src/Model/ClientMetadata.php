@@ -29,7 +29,7 @@ class ClientMetadata implements ClientMetadataInterface
         'userinfo_signed_response_alg' => null,
         'userinfo_encrypted_response_alg' => null,
         'userinfo_encrypted_response_enc' => null,
-        'response_types' => [],
+        'response_types' => ['code'],
         'post_logout_redirect_uris' => [],
         'require_auth_time' => false,
         'request_object_signing_alg' => null,
@@ -86,6 +86,11 @@ class ClientMetadata implements ClientMetadataInterface
         return $this->claims['redirect_uris'] ?? [];
     }
 
+    public function getResponseTypes(): array
+    {
+        return $this->claims['response_types'] ?? ['code'];
+    }
+
     public function getTokenEndpointAuthMethod(): string
     {
         return $this->claims['token_endpoint_auth_method'];
@@ -104,6 +109,21 @@ class ClientMetadata implements ClientMetadataInterface
     public function getAuthorizationEncryptedResponseEnc(): ?string
     {
         return $this->claims['authorization_encrypted_response_enc'] ?? null;
+    }
+
+    public function getIdTokenSignedResponseAlg(): string
+    {
+        return $this->claims['id_token_signed_response_alg'];
+    }
+
+    public function getIdTokenEncryptedResponseAlg(): ?string
+    {
+        return $this->claims['id_token_encrypted_response_alg'] ?? null;
+    }
+
+    public function getIdTokenEncryptedResponseEnc(): ?string
+    {
+        return $this->claims['id_token_encrypted_response_enc'] ?? null;
     }
 
     public function getUserinfoSignedResponseAlg(): ?string

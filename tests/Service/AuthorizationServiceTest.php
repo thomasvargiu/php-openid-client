@@ -14,83 +14,70 @@ use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 use TMV\OpenIdClient\AuthMethod\AuthMethodFactoryInterface;
 use TMV\OpenIdClient\AuthMethod\AuthMethodInterface;
-use TMV\OpenIdClient\Authorization\AuthRequestInterface;
 use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\IssuerInterface;
 use TMV\OpenIdClient\Model\ClientMetadataInterface;
 use TMV\OpenIdClient\Model\IssuerMetadataInterface;
 use TMV\OpenIdClient\Service\AuthorizationService;
+use TMV\OpenIdClient\Token\ResponseTokenVerifierInterface;
+use TMV\OpenIdClient\Token\TokenDecrypterInterface;
+use TMV\OpenIdClient\Token\TokenSetVerifierInterface;
 
 class AuthorizationServiceTest extends TestCase
 {
     public function testGetAuthorizationUri(): void
     {
+        $tokenSetVerifier = $this->prophesize(TokenSetVerifierInterface::class);
+        $responseTokenVerifier = $this->prophesize(ResponseTokenVerifierInterface::class);
+        $tokenDecrypter = $this->prophesize(TokenDecrypterInterface::class);
         $client = $this->prophesize(ClientInterface::class);
         $requestFactory = $this->prophesize(RequestFactoryInterface::class);
         $uriFactory = $this->prophesize(UriFactoryInterface::class);
 
         $service = new AuthorizationService(
+            $tokenSetVerifier->reveal(),
+            $responseTokenVerifier->reveal(),
+            $tokenDecrypter->reveal(),
             $client->reveal(),
             $requestFactory->reveal(),
             $uriFactory->reveal()
         );
 
         $openIdClient = $this->prophesize(OpenIDClient::class);
-        $issuer = $this->prophesize(IssuerInterface::class);
-        $issuerMetadata = $this->prophesize(IssuerMetadataInterface::class);
-        $authRequest = $this->prophesize(AuthRequestInterface::class);
-        $uri = $this->prophesize(UriInterface::class);
-        $uri2 = $this->prophesize(UriInterface::class);
-
-        $openIdClient->getIssuer()->willReturn($issuer->reveal());
-        $issuer->getMetadata()->willReturn($issuerMetadata);
-        $issuerMetadata->getAuthorizationEndpoint()->willReturn('foo-endpoint');
-        $openIdClient->getAuthRequest()->willReturn($authRequest->reveal());
-        $authRequest->createParams()->willReturn(['foo' => 'bar']);
-        $uriFactory->createUri('foo-endpoint')->willReturn($uri->reveal());
-        $uri->withQuery('foo=bar')->willReturn($uri2->reveal());
-
-        $this->assertSame($uri2->reveal(), $service->getAuthorizationUri($openIdClient->reveal()));
-    }
-
-    public function testGetAuthorizationUriWithAuthRequest(): void
-    {
-        $client = $this->prophesize(ClientInterface::class);
-        $requestFactory = $this->prophesize(RequestFactoryInterface::class);
-        $uriFactory = $this->prophesize(UriFactoryInterface::class);
-
-        $service = new AuthorizationService(
-            $client->reveal(),
-            $requestFactory->reveal(),
-            $uriFactory->reveal()
-        );
-
-        $openIdClient = $this->prophesize(OpenIDClient::class);
+        $clientMetadata = $this->prophesize(ClientMetadataInterface::class);
         $issuer = $this->prophesize(IssuerInterface::class);
         $issuerMetadata = $this->prophesize(IssuerMetadataInterface::class);
         $uri = $this->prophesize(UriInterface::class);
         $uri2 = $this->prophesize(UriInterface::class);
 
         $openIdClient->getIssuer()->willReturn($issuer->reveal());
+        $openIdClient->getMetadata()->willReturn($clientMetadata->reveal());
+        $clientMetadata->getClientId()->willReturn('clientId');
+        $clientMetadata->getResponseTypes()->willReturn(['response_type_1']);
+        $clientMetadata->getRedirectUris()->willReturn(['redirect_uri_1']);
         $issuer->getMetadata()->willReturn($issuerMetadata);
         $issuerMetadata->getAuthorizationEndpoint()->willReturn('foo-endpoint');
-        $openIdClient->getAuthRequest()->shouldNotBeCalled();
         $uriFactory->createUri('foo-endpoint')->willReturn($uri->reveal());
-        $uri->withQuery('foo=bar')->willReturn($uri2->reveal());
+        $uri->withQuery('client_id=clientId&scope=openid&response_type=response_type_1&redirect_uri=redirect_uri_1')
+            ->willReturn($uri2->reveal());
+        $uri2->__toString()->willReturn('foo-uri');
 
-        $this->assertSame(
-            $uri2->reveal(),
-            $service->getAuthorizationUri($openIdClient->reveal(), ['foo' => 'bar'])
-        );
+        $this->assertSame('foo-uri', $service->getAuthorizationUri($openIdClient->reveal()));
     }
 
     public function testFetchTokenFromCode(): void
     {
+        $tokenSetVerifier = $this->prophesize(TokenSetVerifierInterface::class);
+        $responseTokenVerifier = $this->prophesize(ResponseTokenVerifierInterface::class);
+        $tokenDecrypter = $this->prophesize(TokenDecrypterInterface::class);
         $client = $this->prophesize(ClientInterface::class);
         $requestFactory = $this->prophesize(RequestFactoryInterface::class);
         $uriFactory = $this->prophesize(UriFactoryInterface::class);
 
         $service = new AuthorizationService(
+            $tokenSetVerifier->reveal(),
+            $responseTokenVerifier->reveal(),
+            $tokenDecrypter->reveal(),
             $client->reveal(),
             $requestFactory->reveal(),
             $uriFactory->reveal()
@@ -98,7 +85,6 @@ class AuthorizationServiceTest extends TestCase
 
         $openIdClient = $this->prophesize(OpenIDClient::class);
         $metadata = $this->prophesize(ClientMetadataInterface::class);
-        $authRequest = $this->prophesize(AuthRequestInterface::class);
         $authMethodFactory = $this->prophesize(AuthMethodFactoryInterface::class);
         $authMethod = $this->prophesize(AuthMethodInterface::class);
         $request = $this->prophesize(RequestInterface::class);
@@ -118,14 +104,16 @@ class AuthorizationServiceTest extends TestCase
         $request->withHeader('content-type', 'application/x-www-form-urlencoded')
             ->willReturn($tokenRequest1->reveal());
         $openIdClient->getMetadata()->willReturn($metadata->reveal());
-        $openIdClient->getAuthRequest()->willReturn($authRequest->reveal());
         $openIdClient->getTokenEndpoint()->willReturn('token-endpoint');
         $openIdClient->getAuthMethodFactory()->willReturn($authMethodFactory->reveal());
         $metadata->getTokenEndpointAuthMethod()->willReturn('auth-method');
         $authMethodFactory->create('auth-method')->willReturn($authMethod->reveal());
-        $authMethod->createRequest($tokenRequest1->reveal(), $openIdClient->reveal(), $claims)
+        $authMethod->createRequest(
+            $tokenRequest1->reveal(),
+            $openIdClient->reveal(),
+            $claims
+        )
             ->willReturn($tokenRequest2->reveal());
-        $authRequest->getRedirectUri()->willReturn('redirect-uri');
 
         $client->sendRequest($tokenRequest2->reveal())
             ->willReturn($response->reveal());
@@ -133,6 +121,6 @@ class AuthorizationServiceTest extends TestCase
         $response->getBody()->willReturn($stream->reveal());
         $stream->__toString()->willReturn('{"foo":"bar"}');
 
-        $this->assertSame(['foo' => 'bar'], $service->fetchTokenFromCode($openIdClient->reveal(), 'foo-code'));
+        $this->assertSame(['foo' => 'bar'], $service->grant($openIdClient->reveal(), $claims));
     }
 }

@@ -8,25 +8,13 @@ use JsonSerializable;
 
 interface AuthSessionInterface extends JsonSerializable
 {
-    public function has(string $name): bool;
+    public function getState(): ?string;
 
-    public function set(string $name, $value): void;
+    public function getNonce(): ?string;
 
-    /**
-     * @param string $name
-     *
-     * @return null|mixed
-     */
-    public function get(string $name);
+    public function setState(?string $state): void;
 
-    public function del(string $name): void;
+    public function setNonce(?string $nonce): void;
 
-    public function all(): array;
-
-    public function clear(): void;
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function jsonSerialize(): array;
+    public static function fromArray(array $array): self;
 }

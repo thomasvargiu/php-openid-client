@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\AuthMethod;
 
+use Jose\Component\Core\AlgorithmManager;
+use Jose\Component\Core\JWK;
+use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\JWSBuilder;
+use Jose\Component\Signature\Serializer\CompactSerializer;
 use Jose\Component\Signature\Serializer\Serializer;
 use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\RuntimeException;
@@ -17,8 +21,8 @@ final class PrivateKeyJwt extends AbstractJwtAuth
     /** @var Serializer */
     private $jwsSerializer;
 
-    /** @var null|string */
-    private $kid;
+    /** @var null|JWK */
+    private $jwk;
 
     /** @var int */
     private $tokenTTL;
@@ -26,20 +30,20 @@ final class PrivateKeyJwt extends AbstractJwtAuth
     /**
      * PrivateKeyJwt constructor.
      *
-     * @param JWSBuilder $jwsBuilder
-     * @param Serializer $serializer
-     * @param string|null $kid
+     * @param null|JWSBuilder $jwsBuilder
+     * @param null|Serializer $serializer
+     * @param null|JWK $jwk
      * @param int $tokenTTL
      */
     public function __construct(
-        JWSBuilder $jwsBuilder,
-        Serializer $serializer,
-        ?string $kid = null,
+        ?JWSBuilder $jwsBuilder = null,
+        ?Serializer $serializer = null,
+        ?JWK $jwk = null,
         int $tokenTTL = 60
     ) {
-        $this->jwsBuilder = $jwsBuilder;
-        $this->jwsSerializer = $serializer;
-        $this->kid = $kid;
+        $this->jwsBuilder = $jwsBuilder ?: new JWSBuilder(new AlgorithmManager([new RS256()]));
+        $this->jwsSerializer = $serializer ?: new CompactSerializer();
+        $this->jwk = $jwk;
         $this->tokenTTL = $tokenTTL;
     }
 
@@ -55,7 +59,7 @@ final class PrivateKeyJwt extends AbstractJwtAuth
 
         $clientId = $client->getMetadata()->getClientId();
 
-        $jwk = $client->getJWKS()->selectKey('sig', null, $this->kid ? ['kid' => $this->kid] : []);
+        $jwk = $this->jwk ?: $client->getJWKS()->selectKey('sig');
 
         if (! $jwk) {
             throw new RuntimeException('Unable to get a client signature jwk');

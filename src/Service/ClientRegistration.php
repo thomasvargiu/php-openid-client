@@ -9,11 +9,11 @@ use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
-use function TMV\OpenIdClient\checkServerResponse;
+use function TMV\OpenIdClient\check_server_response;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use TMV\OpenIdClient\IssuerInterface;
-use function TMV\OpenIdClient\parseMetadataResponse;
+use function TMV\OpenIdClient\parse_metadata_response;
 
 class ClientRegistration
 {
@@ -78,7 +78,7 @@ class ClientRegistration
             throw new RuntimeException('Unable to register OpenID client', 0, $e);
         }
 
-        $data = parseMetadataResponse($response, 201);
+        $data = parse_metadata_response($response, 201);
 
         if (! \array_key_exists('client_id', $data)) {
             throw new RuntimeException('Registration response did not return a client_id field');
@@ -99,7 +99,7 @@ class ClientRegistration
             throw new RuntimeException('Unable to read OpenID client', 0, $e);
         }
 
-        $claims = parseMetadataResponse($response, 200);
+        $claims = parse_metadata_response($response, 200);
 
         if (! \array_key_exists('client_id', $claims)) {
             throw new RuntimeException('Registration response did not return a client_id field');
@@ -137,7 +137,7 @@ class ClientRegistration
             throw new RuntimeException('Unable to update OpenID client', 0, $e);
         }
 
-        $data = parseMetadataResponse($response, 200);
+        $data = parse_metadata_response($response, 200);
 
         if (! \array_key_exists('client_id', $data)) {
             throw new RuntimeException('Registration response did not return a client_id field');
@@ -160,6 +160,6 @@ class ClientRegistration
             throw new RuntimeException('Unable to delete OpenID client', 0, $e);
         }
 
-        checkServerResponse($response, 204);
+        check_server_response($response, 204);
     }
 }

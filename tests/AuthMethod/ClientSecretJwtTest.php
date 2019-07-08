@@ -13,6 +13,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\ClientSecretJwt;
+use function TMV\OpenIdClient\base64url_encode;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\IssuerInterface;
 use TMV\OpenIdClient\Model\ClientMetadataInterface;
@@ -85,7 +86,7 @@ class ClientSecretJwtTest extends TestCase
             Argument::type(JWK::class),
             Argument::that(function (JWK $jwk) {
                 $this->assertSame('oct', $jwk->get('kty'));
-                $this->assertSame('bar', $jwk->get('k'));
+                $this->assertSame(base64url_encode('bar'), $jwk->get('k'));
 
                 return true;
             })

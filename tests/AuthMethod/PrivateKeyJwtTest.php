@@ -35,15 +35,31 @@ class PrivateKeyJwtTest extends TestCase
         $this->assertSame('private_key_jwt', $auth->getSupportedMethod());
     }
 
-    public function testCreateRequest(): void
+    public function createRequestProvider(): array
+    {
+        return [
+            [true],
+            [false],
+        ];
+    }
+
+    /**
+     * @dataProvider createRequestProvider
+     *
+     * @param bool $jwkAsDependency
+     */
+    public function testCreateRequest(bool $jwkAsDependency = false): void
     {
         $jwsBuilder = $this->prophesize(JWSBuilder::class);
         $serializer = $this->prophesize(Serializer::class);
 
+        $jwk = $this->prophesize(JWK::class);
+        $jwk->get('alg')->willReturn('ALG');
+
         $auth = new PrivateKeyJwt(
             $jwsBuilder->reveal(),
             $serializer->reveal(),
-            null,
+            $jwkAsDependency ? $jwk->reveal() : null,
             60
         );
 
@@ -54,7 +70,12 @@ class PrivateKeyJwtTest extends TestCase
         $issuer = $this->prophesize(IssuerInterface::class);
         $issuerMetadata = $this->prophesize(IssuerMetadataInterface::class);
         $jwks = $this->prophesize(JWKSet::class);
-        $jwk = $this->prophesize(JWK::class);
+
+        if (! $jwkAsDependency) {
+            $client->getJWKS()->willReturn($jwks->reveal());
+            $jwks->selectKey('sig')
+                ->willReturn($jwk->reveal());
+        }
 
         $client->getMetadata()->willReturn($metadata->reveal());
         $client->getIssuer()->willReturn($issuer->reveal());
@@ -62,11 +83,6 @@ class PrivateKeyJwtTest extends TestCase
         $metadata->getClientSecret()->willReturn('bar');
         $issuer->getMetadata()->willReturn($issuerMetadata->reveal());
         $issuerMetadata->getIssuer()->willReturn('issuer');
-
-        $client->getJWKS()->willReturn($jwks->reveal());
-        $jwks->selectKey('sig', null, [])
-            ->willReturn($jwk->reveal());
-        $jwk->get('alg')->willReturn('ALG');
 
         $jwsBuilder2 = $this->prophesize(JWSBuilder::class);
         $jwsBuilder3 = $this->prophesize(JWSBuilder::class);

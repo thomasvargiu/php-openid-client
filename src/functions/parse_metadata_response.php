@@ -13,9 +13,9 @@ use TMV\OpenIdClient\Exception\InvalidArgumentException;
  *
  * @return array<string, mixed>
  */
-function parseMetadataResponse(ResponseInterface $response, ?int $expectedCode = null): array
+function parse_metadata_response(ResponseInterface $response, ?int $expectedCode = null): array
 {
-    checkServerResponse($response, $expectedCode);
+    check_server_response($response, $expectedCode);
 
     /** @var bool|array<string, mixed> $data */
     $data = \json_decode((string) $response->getBody(), true);

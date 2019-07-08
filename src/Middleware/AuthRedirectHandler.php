@@ -10,6 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TMV\OpenIdClient\Authorization\AuthRequestInterface;
+use function TMV\OpenIdClient\base64url_encode;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\Exception\LogicException;
 use TMV\OpenIdClient\Exception\RuntimeException;
@@ -27,14 +28,19 @@ class AuthRedirectHandler implements RequestHandlerInterface
     /** @var null|ClientInterface */
     private $client;
 
+    /** @var int */
+    private $randomBytes;
+
     public function __construct(
         AuthorizationService $authorizationService,
         ?ResponseFactoryInterface $responseFactory = null,
-        ?ClientInterface $client = null
+        ?ClientInterface $client = null,
+        int $randomBytes = 32
     ) {
         $this->authorizationService = $authorizationService;
         $this->responseFactory = $responseFactory ?: Psr17FactoryDiscovery::findResponseFactory();
         $this->client = $client;
+        $this->randomBytes = $randomBytes;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -48,17 +54,14 @@ class AuthRedirectHandler implements RequestHandlerInterface
         $authSession = $request->getAttribute(AuthSessionInterface::class);
 
         if ($authSession instanceof AuthSessionInterface) {
-            if ($state = $authRequest->getState()) {
-                $authSession->set('state', $state);
-            } elseif ($state = $authSession->get('state')) {
-                $authRequest = $authRequest->withParams(['state' => $state]);
-            }
+            $state = $authRequest->getState() ?: base64url_encode(\random_bytes($this->randomBytes));
+            $nonce = $authRequest->getNonce() ?: base64url_encode(\random_bytes($this->randomBytes));
 
-            if ($nonce = $authRequest->getNonce()) {
-                $authSession->set('nonce', $nonce);
-            } elseif ($nonce = $authSession->get('nonce')) {
-                $authRequest = $authRequest->withParams(['nonce' => $nonce]);
-            }
+            $authSession->setState($state);
+            $authSession->setNonce($nonce);
+
+            $authRequest = $authRequest->withParams(['state' => $state]);
+            $authRequest = $authRequest->withParams(['nonce' => $nonce]);
         }
 
         $client = $this->client ?: $request->getAttribute(ClientInterface::class);
@@ -70,6 +73,6 @@ class AuthRedirectHandler implements RequestHandlerInterface
         $uri = $this->authorizationService->getAuthorizationUri($client, $authRequest->createParams());
 
         return $this->responseFactory->createResponse(302)
-            ->withHeader('location', (string) $uri);
+            ->withHeader('location', $uri);
     }
 }

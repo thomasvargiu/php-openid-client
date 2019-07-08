@@ -9,13 +9,14 @@ use TMV\OpenIdClient\AuthMethod\AuthMethodFactory;
 use TMV\OpenIdClient\AuthMethod\AuthMethodFactoryInterface;
 use TMV\OpenIdClient\AuthMethod\AuthMethodInterface;
 use TMV\OpenIdClient\AuthMethod\ClientSecretBasic;
-use TMV\OpenIdClient\Authorization\AuthRequestInterface;
+use TMV\OpenIdClient\AuthMethod\ClientSecretJwt;
+use TMV\OpenIdClient\AuthMethod\ClientSecretPost;
+use TMV\OpenIdClient\AuthMethod\None;
+use TMV\OpenIdClient\AuthMethod\PrivateKeyJwt;
+use TMV\OpenIdClient\AuthMethod\SelfSignedTLSClientAuth;
+use TMV\OpenIdClient\AuthMethod\TLSClientAuth;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use TMV\OpenIdClient\Model\ClientMetadataInterface;
-use TMV\OpenIdClient\ResponseMode\FormPost;
-use TMV\OpenIdClient\ResponseMode\Query;
-use TMV\OpenIdClient\ResponseMode\ResponseModeFactory;
-use TMV\OpenIdClient\ResponseMode\ResponseModeFactoryInterface;
 
 class Client implements ClientInterface
 {
@@ -28,43 +29,34 @@ class Client implements ClientInterface
     /** @var JWKSet */
     private $jwks;
 
-    /** @var AuthRequestInterface */
-    private $authRequest;
-
     /** @var AuthMethodFactoryInterface */
     private $authMethodFactory;
-
-    /** @var ResponseModeFactoryInterface */
-    private $responseModeFactory;
 
     /**
      * Client constructor.
      *
      * @param IssuerInterface $issuer
      * @param ClientMetadataInterface $metadata
-     * @param JWKSet $jwks
-     * @param AuthRequestInterface $authRequest
+     * @param null|JWKSet $jwks
      * @param null|AuthMethodFactoryInterface $authMethodFactory
-     * @param null|ResponseModeFactoryInterface $responseModeFactory
      */
     public function __construct(
         IssuerInterface $issuer,
         ClientMetadataInterface $metadata,
-        JWKSet $jwks,
-        AuthRequestInterface $authRequest,
-        ?AuthMethodFactoryInterface $authMethodFactory = null,
-        ?ResponseModeFactoryInterface $responseModeFactory = null
+        ?JWKSet $jwks = null,
+        ?AuthMethodFactoryInterface $authMethodFactory = null
     ) {
         $this->issuer = $issuer;
         $this->metadata = $metadata;
-        $this->jwks = $jwks;
-        $this->authRequest = $authRequest;
+        $this->jwks = $jwks ?: new JWKSet([]);
         $this->authMethodFactory = $authMethodFactory ?: new AuthMethodFactory([
             new ClientSecretBasic(),
-        ]);
-        $this->responseModeFactory = $responseModeFactory ?: new ResponseModeFactory([
-            new Query(),
-            new FormPost(),
+            new ClientSecretJwt(),
+            new ClientSecretPost(),
+            new None(),
+            new PrivateKeyJwt(),
+            new TLSClientAuth(),
+            new SelfSignedTLSClientAuth(),
         ]);
     }
 
@@ -87,27 +79,11 @@ class Client implements ClientInterface
     }
 
     /**
-     * @return AuthRequestInterface
-     */
-    public function getAuthRequest(): AuthRequestInterface
-    {
-        return $this->authRequest;
-    }
-
-    /**
      * @return AuthMethodFactoryInterface
      */
     public function getAuthMethodFactory(): AuthMethodFactoryInterface
     {
         return $this->authMethodFactory;
-    }
-
-    /**
-     * @return ResponseModeFactoryInterface
-     */
-    public function getResponseModeFactory(): ResponseModeFactoryInterface
-    {
-        return $this->responseModeFactory;
     }
 
     /**

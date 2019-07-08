@@ -212,7 +212,7 @@ class ClientMetadataTest extends TestCase
 
         $this->assertFalse($metadata->get('require_auth_time'));
         $this->assertFalse($metadata->get('tls_client_certificate_bound_access_tokens'));
-        $this->assertSame([], $metadata->get('response_types'));
+        $this->assertSame(['code'], $metadata->get('response_types'));
         $this->assertSame([], $metadata->get('post_logout_redirect_uris'));
         $this->assertSame('RS256', $metadata->get('id_token_signed_response_alg'));
         $this->assertSame('client_secret_basic', $metadata->getTokenEndpointAuthMethod());

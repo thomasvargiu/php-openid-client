@@ -7,7 +7,7 @@ namespace TMV\OpenIdClientTest\functions;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use function TMV\OpenIdClient\checkServerResponse;
+use function TMV\OpenIdClient\check_server_response;
 use TMV\OpenIdClient\Exception\OAuth2Exception;
 use TMV\OpenIdClient\Exception\RemoteException;
 
@@ -27,7 +27,7 @@ class CheckServerResponseTest extends TestCase
         $response->getStatusCode()->willReturn(400);
         $response->getReasonPhrase()->willReturn('Error');
 
-        checkServerResponse($response->reveal());
+        check_server_response($response->reveal());
     }
 
     public function testErrorStatusCodeWithOAuth2Error(): void
@@ -44,7 +44,7 @@ class CheckServerResponseTest extends TestCase
         $response->getStatusCode()->willReturn(400);
         $response->getReasonPhrase()->shouldNotBeCalled();
 
-        checkServerResponse($response->reveal());
+        check_server_response($response->reveal());
     }
 
     public function testErrorStatusCodeWithExpectedCode(): void
@@ -56,6 +56,6 @@ class CheckServerResponseTest extends TestCase
         $response->getBody()->willReturn($stream->reveal());
         $response->getStatusCode()->shouldBeCalled()->willReturn(400);
 
-        checkServerResponse($response->reveal(), 400);
+        check_server_response($response->reveal(), 400);
     }
 }
