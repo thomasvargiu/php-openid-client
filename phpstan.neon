@@ -2,9 +2,13 @@ parameters:
     level: max
     fileExtensions:
         - php
+    inferPrivatePropertyTypeFromConstructor: true
     excludes_analyse:
         - %currentWorkingDirectory%/.phpstorm.meta.php
         - %currentWorkingDirectory%/vendor/*
+    paths:
+        - %currentWorkingDirectory%/src
+        - %currentWorkingDirectory%/tests
 
 includes:
     - vendor/jangregor/phpstan-prophecy/src/extension.neon

@@ -14,6 +14,7 @@ use Jose\Component\Encryption\Serializer\CompactSerializer;
 use Jose\Component\Encryption\Serializer\JWESerializerManager;
 use function TMV\OpenIdClient\base64url_decode;
 use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Exception\LogicException;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use function TMV\OpenIdClient\jose_secret_key;
 
@@ -50,6 +51,10 @@ class TokenDecrypter implements TokenDecrypterInterface
 
         if ($expectedEnc !== ($header['enc'] ?? '')) {
             throw new RuntimeException(\sprintf('Unexpected JWE enc received, expected %s, got: %s', $expectedEnc, $header['enc'] ?? ''));
+        }
+
+        if (! \class_exists(JWELoader::class)) {
+            throw new LogicException('In order to decrypt JWT you should install web-token/jwt-encryption package');
         }
 
         $serializer = new CompactSerializer();
