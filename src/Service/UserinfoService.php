@@ -85,12 +85,10 @@ class UserinfoService
             $payload = \json_decode((string) $response->getBody(), true);
         }
 
-        $claims = \json_decode($payload, true);
-
-        if (! \is_array($claims)) {
+        if (! \is_array($payload)) {
             throw new RuntimeException('Unable to parse userinfo claims');
         }
 
-        return $claims;
+        return $payload;
     }
 }
