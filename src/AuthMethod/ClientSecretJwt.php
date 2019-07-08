@@ -16,7 +16,7 @@ use function TMV\OpenIdClient\jose_secret_key;
 
 final class ClientSecretJwt extends AbstractJwtAuth
 {
-    /** @var JWSBuilder */
+    /** @var null|JWSBuilder */
     private $jwsBuilder;
 
     /** @var Serializer */
@@ -32,17 +32,26 @@ final class ClientSecretJwt extends AbstractJwtAuth
         ?JWSBuilder $jwsBuilder = null,
         ?Serializer $jwsSerializer = null
     ) {
-        if (! $jwsBuilder && ! \class_exists(HS256::class)) {
-            throw new LogicException('To use the client_secret_jwt auth method you should install web-token/jwt-signature-algorithm-hmac package');
-        }
-
-        $this->jwsBuilder = $jwsBuilder ?: new JWSBuilder(new AlgorithmManager([new HS256()]));
+        $this->jwsBuilder = $jwsBuilder;
         $this->jwsSerializer = $jwsSerializer ?: new CompactSerializer();
     }
 
     public function getSupportedMethod(): string
     {
         return 'client_secret_jwt';
+    }
+
+    private function getJwsBuilder(): JWSBuilder
+    {
+        if ($this->jwsBuilder) {
+            return $this->jwsBuilder;
+        }
+
+        if (! \class_exists(HS256::class)) {
+            throw new LogicException('To use the client_secret_jwt auth method you should install web-token/jwt-signature-algorithm-hmac package');
+        }
+
+        return $this->jwsBuilder = new JWSBuilder(new AlgorithmManager([new HS256()]));
     }
 
     protected function createAuthJwt(OpenIDClient $client, array $claims = []): string
@@ -75,7 +84,7 @@ final class ClientSecretJwt extends AbstractJwtAuth
             ]
         ));
 
-        $jws = $this->jwsBuilder->create()
+        $jws = $this->getJwsBuilder()->create()
             ->withPayload($payload)
             ->addSignature($jwk, ['alg' => 'HS256', 'jti' => $jti])
             ->build();
