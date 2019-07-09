@@ -90,7 +90,7 @@ class IdTokenVerifier implements IdTokenVerifierInterface
         $header = \json_decode(base64url_decode(\explode('.', $idToken)[0] ?? '{}'), true);
 
         if ($expectedAlg !== ($header['alg'] ?? '')) {
-            throw new RuntimeException(\sprintf('Unexpected JWE alg received, expected %s, got: %s', $expectedAlg, $header['alg'] ?? ''));
+            throw new RuntimeException(\sprintf('Unexpected JWS alg received, expected %s, got: %s', $expectedAlg, $header['alg'] ?? ''));
         }
 
         $payload = \json_decode(base64url_decode(\explode('.', $idToken)[1] ?? '{}'), true);
@@ -155,7 +155,20 @@ class IdTokenVerifier implements IdTokenVerifierInterface
             $jwks = $client->getIssuer()->getJwks();
         }
 
-        if (! $jwsVerifier->verifyWithKeySet($jws, $jwks, 0)) {
+        $kid = $header['kid'] ?? null;
+
+        if ($kid) {
+            $jwk = $jwks->selectKey('sig', null, ['kid' => $kid, 'alg' => $expectedAlg]);
+            if (! $jwk) {
+                throw new RuntimeException('Unable to find the jwk with the provided kid');
+            }
+
+            $result = $jwsVerifier->verifyWithKey($jws, $jwk, 0);
+        } else {
+            $result = $jwsVerifier->verifyWithKeySet($jws, $jwks, 0);
+        }
+
+        if (! $result) {
             throw new InvalidArgumentException('Failed to validate JWT signature');
         }
 
