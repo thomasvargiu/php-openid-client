@@ -45,16 +45,7 @@ class UserInfoMiddleware implements MiddlewareInterface
             throw new RuntimeException('Unable to get token response attribute');
         }
 
-        $accessToken = $tokenSet->getAccessToken();
-
-        if (! $accessToken) {
-            throw new RuntimeException(\sprintf(
-                'Unable to get access token from "%s" attribute',
-                TokenSetInterface::class
-            ));
-        }
-
-        $claims = $this->userinfoService->getUserInfo($client, $accessToken);
+        $claims = $this->userinfoService->getUserInfo($client, $tokenSet);
 
         return $handler->handle($request->withAttribute(static::USERINFO_ATTRIBUTE, $claims));
     }

@@ -66,6 +66,6 @@ $claims = $tokenSet->claims(); // IdToken claims (if id_token is available)
 // Get user info
 
 $userinfoService = new UserinfoService();
-$userinfo = $userinfoService->getUserInfo($client, $accessToken);
+$userinfo = $userinfoService->getUserInfo($client, $tokenSet);
 
 ```
