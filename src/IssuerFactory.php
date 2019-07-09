@@ -8,12 +8,12 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use Jose\Component\KeyManagement\JKUFactory;
 use TMV\OpenIdClient\Model\IssuerMetadata;
-use TMV\OpenIdClient\Provider\DiscoveryMetadataProvider;
-use TMV\OpenIdClient\Provider\DiscoveryMetadataProviderInterface;
+use TMV\OpenIdClient\Provider\IssuerMetadataProvider;
+use TMV\OpenIdClient\Provider\IssuerMetadataProviderInterface;
 
 class IssuerFactory
 {
-    /** @var DiscoveryMetadataProviderInterface */
+    /** @var IssuerMetadataProviderInterface */
     private $discovery;
 
     /** @var JKUFactory */
@@ -22,12 +22,12 @@ class IssuerFactory
     /**
      * IssuerFactory constructor.
      *
-     * @param null|DiscoveryMetadataProviderInterface $discovery
+     * @param null|IssuerMetadataProviderInterface $discovery
      * @param null|JKUFactory $JKUFactory
      */
-    public function __construct(?DiscoveryMetadataProviderInterface $discovery = null, ?JKUFactory $JKUFactory = null)
+    public function __construct(?IssuerMetadataProviderInterface $discovery = null, ?JKUFactory $JKUFactory = null)
     {
-        $this->discovery = $discovery ?: new DiscoveryMetadataProvider();
+        $this->discovery = $discovery ?: new IssuerMetadataProvider();
         $this->JKUFactory = $JKUFactory ?: new JKUFactory(
             Psr18ClientDiscovery::find(),
             Psr17FactoryDiscovery::findRequestFactory()

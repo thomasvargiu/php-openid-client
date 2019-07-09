@@ -9,13 +9,13 @@ use Jose\Component\KeyManagement\JKUFactory;
 use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\Issuer;
 use TMV\OpenIdClient\IssuerFactory;
-use TMV\OpenIdClient\Provider\DiscoveryMetadataProviderInterface;
+use TMV\OpenIdClient\Provider\IssuerMetadataProviderInterface;
 
 class IssuerFactoryTest extends TestCase
 {
     public function testFromUri(): void
     {
-        $discovery = $this->prophesize(DiscoveryMetadataProviderInterface::class);
+        $discovery = $this->prophesize(IssuerMetadataProviderInterface::class);
         $JKUFactory = $this->prophesize(JKUFactory::class);
 
         $uri = 'https://example.com/.well-known/openid-configuration';
@@ -40,7 +40,7 @@ class IssuerFactoryTest extends TestCase
 
     public function testFromWebFinger(): void
     {
-        $discovery = $this->prophesize(DiscoveryMetadataProviderInterface::class);
+        $discovery = $this->prophesize(IssuerMetadataProviderInterface::class);
         $JKUFactory = $this->prophesize(JKUFactory::class);
 
         $resource = 'https://example.com/';

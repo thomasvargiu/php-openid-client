@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\Provider;
 
-interface DiscoveryMetadataProviderInterface
+interface IssuerMetadataProviderInterface
 {
     public function webfinger(string $resource): array;
 

@@ -12,7 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
-use TMV\OpenIdClient\Provider\DiscoveryMetadataProvider;
+use TMV\OpenIdClient\Provider\IssuerMetadataProvider;
 
 class DiscoveryMetadataProviderTest extends TestCase
 {
@@ -23,7 +23,7 @@ class DiscoveryMetadataProviderTest extends TestCase
         $uriFactory = $this->prophesize(UriFactoryInterface::class);
 
         $uri = 'https://example.com';
-        $provider = new DiscoveryMetadataProvider(
+        $provider = new IssuerMetadataProvider(
             $client->reveal(),
             $requestFactory->reveal(),
             $uriFactory->reveal()
@@ -73,7 +73,7 @@ class DiscoveryMetadataProviderTest extends TestCase
         $uriFactory = $this->prophesize(UriFactoryInterface::class);
 
         $uri = 'https://example.com/.well-known/openid-configuration';
-        $provider = new DiscoveryMetadataProvider(
+        $provider = new IssuerMetadataProvider(
             $client->reveal(),
             $requestFactory->reveal(),
             $uriFactory->reveal()

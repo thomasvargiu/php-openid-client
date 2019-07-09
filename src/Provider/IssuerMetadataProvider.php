@@ -12,9 +12,10 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\RuntimeException;
+use function TMV\OpenIdClient\normalize_webfinger;
 use function TMV\OpenIdClient\parse_metadata_response;
 
-class DiscoveryMetadataProvider implements DiscoveryMetadataProviderInterface
+class IssuerMetadataProvider implements IssuerMetadataProviderInterface
 {
     private const OIDC_DISCOVERY = '/.well-known/openid-configuration';
 
@@ -47,9 +48,24 @@ class DiscoveryMetadataProvider implements DiscoveryMetadataProviderInterface
 
     public function webfinger(string $resource): array
     {
-        $uri = $this->uriFactory->createUri($resource);
-        $webFingerUrl = $this->uriFactory->createUri('https://' . $uri->getHost() . ':' . $uri->getPort() . self::WEBFINGER)
-            ->withQuery(\http_build_query(['resource' => (string) $uri, 'rel' => self::REL]));
+        $resource = normalize_webfinger($resource);
+        $parsedUrl = \parse_url(
+            false !== \strpos($resource, '@')
+                ? 'https://' . \explode('@', $resource)[1]
+                : $resource
+        );
+
+        if (! \is_array($parsedUrl) || ! \array_key_exists('host', $parsedUrl)) {
+            throw new RuntimeException('Unable to parse resource');
+        }
+
+        $host = $parsedUrl['host'];
+        if ($port = ($parsedUrl['port'] ?? null)) {
+            $host .= ':' . $port;
+        }
+
+        $webFingerUrl = $this->uriFactory->createUri('https://' . $host . self::WEBFINGER)
+            ->withQuery(\http_build_query(['resource' => $resource, 'rel' => self::REL]));
 
         $request = $this->requestFactory->createRequest('GET', $webFingerUrl)
             ->withHeader('accept', 'application/json');

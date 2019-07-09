@@ -42,6 +42,7 @@
             "src/functions/check_server_response.php",
             "src/functions/derived_key.php",
             "src/functions/jose_secret_key.php",
+            "src/functions/normalize_webfinger.php",
             "src/functions/parse_callback_params.php",
             "src/functions/parse_metadata_response.php"
         ],
