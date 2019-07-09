@@ -36,5 +36,7 @@ function parse_callback_params(ServerRequestInterface $serverRequest): array
         return $params;
     }
 
-    return $serverRequest->getQueryParams();
+    \parse_str($serverRequest->getUri()->getQuery(), $params);
+
+    return $params;
 }
