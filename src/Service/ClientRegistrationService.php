@@ -15,7 +15,7 @@ use TMV\OpenIdClient\Exception\RuntimeException;
 use TMV\OpenIdClient\IssuerInterface;
 use function TMV\OpenIdClient\parse_metadata_response;
 
-class ClientRegistration
+class ClientRegistrationService
 {
     /** @var ClientInterface */
     private $client;
@@ -31,12 +31,6 @@ class ClientRegistration
         'client_id_issued_at',
     ];
 
-    /**
-     * ClientRegistration constructor.
-     *
-     * @param null|ClientInterface $client
-     * @param null|RequestFactoryInterface $requestFactory
-     */
     public function __construct(
         ?ClientInterface $client = null,
         ?RequestFactoryInterface $requestFactory = null
