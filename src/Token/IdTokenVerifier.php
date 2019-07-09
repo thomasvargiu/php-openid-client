@@ -158,9 +158,9 @@ class IdTokenVerifier implements IdTokenVerifierInterface
         $kid = $header['kid'] ?? null;
 
         if ($kid) {
-            $jwk = $jwks->selectKey('sig', null, ['kid' => $kid, 'alg' => $expectedAlg]);
+            $jwk = $jwks->selectKey('sig', null, ['kid' => $kid]);
             if (! $jwk) {
-                throw new RuntimeException('Unable to find the jwk with the provided kid');
+                throw new RuntimeException('Unable to find the jwk with the provided kid: ' . $kid);
             }
 
             $result = $jwsVerifier->verifyWithKey($jws, $jwk, 0);
