@@ -48,10 +48,10 @@ class DiscoveryMetadataProvider implements DiscoveryMetadataProviderInterface
     public function webfinger(string $resource): array
     {
         $uri = $this->uriFactory->createUri($resource);
-        $webfingerUrl = $this->uriFactory->createUri('https://' . $uri->getHost() . ':' . $uri->getPort() . self::WEBFINGER)
+        $webFingerUrl = $this->uriFactory->createUri('https://' . $uri->getHost() . ':' . $uri->getPort() . self::WEBFINGER)
             ->withQuery(\http_build_query(['resource' => (string) $uri, 'rel' => self::REL]));
 
-        $request = $this->requestFactory->createRequest('GET', $webfingerUrl)
+        $request = $this->requestFactory->createRequest('GET', $webFingerUrl)
             ->withHeader('accept', 'application/json');
 
         try {

@@ -41,4 +41,12 @@ class IssuerFactory
 
         return new Issuer($metadata, $jwks);
     }
+
+    public function fromWebFinger(string $resource): IssuerInterface
+    {
+        $metadata = IssuerMetadata::fromClaims($this->discovery->webfinger($resource));
+        $jwks = $this->JKUFactory->loadFromUrl($metadata->getJwksUri());
+
+        return new Issuer($metadata, $jwks);
+    }
 }

@@ -37,4 +37,29 @@ class IssuerFactoryTest extends TestCase
         $this->assertInstanceOf(Issuer::class, $result);
         $this->assertSame('foo', $result->getMetadata()->getIssuer());
     }
+
+    public function testFromWebFinger(): void
+    {
+        $discovery = $this->prophesize(DiscoveryMetadataProviderInterface::class);
+        $JKUFactory = $this->prophesize(JKUFactory::class);
+
+        $resource = 'https://example.com/';
+
+        $discovery->webfinger($resource)->willReturn([
+            'issuer' => 'foo',
+            'authorization_endpoint' => 'https://issuer.com/auth',
+            'jwks_uri' => 'https://issuer.com/jwks',
+        ]);
+
+        $jwks = $this->prophesize(JWKSet::class);
+        $JKUFactory->loadFromUrl('https://issuer.com/jwks')
+            ->willReturn($jwks->reveal());
+
+        $factory = new IssuerFactory($discovery->reveal(), $JKUFactory->reveal());
+
+        $result = $factory->fromWebFinger($resource);
+
+        $this->assertInstanceOf(Issuer::class, $result);
+        $this->assertSame('foo', $result->getMetadata()->getIssuer());
+    }
 }
