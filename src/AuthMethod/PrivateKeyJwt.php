@@ -10,6 +10,7 @@ use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\CompactSerializer;
 use Jose\Component\Signature\Serializer\Serializer;
+use function TMV\OpenIdClient\base64url_encode;
 use TMV\OpenIdClient\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\RuntimeException;
 
@@ -66,7 +67,7 @@ final class PrivateKeyJwt extends AbstractJwtAuth
         }
 
         $time = \time();
-        $jti = \bin2hex(\random_bytes(32));
+        $jti = base64url_encode(\random_bytes(32));
 
         /** @var string $payload */
         $payload = \json_encode(\array_merge(

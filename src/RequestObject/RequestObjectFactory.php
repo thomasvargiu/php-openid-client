@@ -79,7 +79,7 @@ class RequestObjectFactory
             'iss' => $metadata->getClientId(),
             'aud' => $issuer->getMetadata()->getIssuer(),
             'client_id' => $metadata->getClientId(),
-            'jti' => \bin2hex(\random_bytes(32)),
+            'jti' => base64url_encode(\random_bytes(32)),
             'iat' => \time(),
             'exp' => \time() + 300,
         ]));
