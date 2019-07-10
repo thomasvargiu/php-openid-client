@@ -23,9 +23,7 @@ function parse_callback_params(ServerRequestInterface $serverRequest): array
             throw new RuntimeException('Invalid parsed body');
         }
 
-        return \array_map(static function ($value) {
-            return \json_decode($value, true);
-        }, $params);
+        return $params;
     }
 
     if ('GET' !== $method) {
