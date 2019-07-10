@@ -17,13 +17,15 @@ function parse_callback_params(ServerRequestInterface $serverRequest): array
     $method = \strtoupper($serverRequest->getMethod());
 
     if ('POST' === $method) {
-        $params = $serverRequest->getParsedBody();
+        \parse_str((string) $serverRequest->getBody(), $params);
 
         if (! \is_array($params)) {
             throw new RuntimeException('Invalid parsed body');
         }
 
-        return $params;
+        return \array_map(static function ($value) {
+            return \json_decode($value, true);
+        }, $params);
     }
 
     if ('GET' !== $method) {
