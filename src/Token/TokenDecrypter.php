@@ -71,6 +71,6 @@ class TokenDecrypter implements TokenDecrypterInterface
             $jwks = new JWKSet([$jwk]);
         }
 
-        return $serializer->serialize($jweLoader->loadAndDecryptWithKeySet($token, $jwks, $recipient));
+        return $jweLoader->loadAndDecryptWithKeySet($token, $jwks, $recipient)->getPayload() ?: '';
     }
 }
