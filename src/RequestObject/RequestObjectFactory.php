@@ -125,7 +125,6 @@ class RequestObjectFactory
     private function createEncryptedToken(ClientInterface $client, string $payload): string
     {
         $metadata = $client->getMetadata();
-        $issuer = $client->getIssuer();
 
         /** @var null|string $alg */
         $alg = $metadata->get('request_object_encryption_alg');
@@ -138,7 +137,7 @@ class RequestObjectFactory
         $enc = $metadata->get('request_object_encryption_enc');
 
         if (\preg_match('/^(RSA|ECDH)/', $alg)) {
-            $jwk = $issuer->getJwks()->selectKey('enc', null, ['alg' => $alg]);
+            $jwk = $client->getJwks()->selectKey('enc', null, ['alg' => $alg]);
         } else {
             $jwk = jose_secret_key(
                 $metadata->getClientSecret() ?: '',
