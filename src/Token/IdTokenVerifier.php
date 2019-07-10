@@ -29,8 +29,8 @@ use TMV\OpenIdClient\Model\AuthSessionInterface;
 
 class IdTokenVerifier implements IdTokenVerifierInterface
 {
-    /** @var AlgorithmManager */
-    private $algorithmManager;
+    /** @var JWSVerifier */
+    private $jwsVerifier;
 
     /** @var bool */
     private $aadIssValidation;
@@ -38,19 +38,12 @@ class IdTokenVerifier implements IdTokenVerifierInterface
     /** @var int */
     private $clockTolerance = 0;
 
-    /**
-     * IdTokenVerifier constructor.
-     *
-     * @param null|AlgorithmManager $algorithmManager
-     * @param bool $aadIssValidation
-     * @param int $clockTolerance
-     */
     public function __construct(
-        ?AlgorithmManager $algorithmManager = null,
+        ?JWSVerifier $jwsVerifier = null,
         bool $aadIssValidation = false,
         int $clockTolerance = 0
     ) {
-        $this->algorithmManager = $algorithmManager ?: new AlgorithmManager([new RS256()]);
+        $this->jwsVerifier = $jwsVerifier ?: new JWSVerifier(new AlgorithmManager([new RS256()]));
         $this->aadIssValidation = $aadIssValidation;
         $this->clockTolerance = $clockTolerance;
     }
@@ -141,16 +134,12 @@ class IdTokenVerifier implements IdTokenVerifierInterface
         $serializer = new CompactSerializer();
         $jws = $serializer->unserialize($idToken);
 
-        $jwsVerifier = new JWSVerifier(
-            $this->algorithmManager
-        );
-
         /** @var string|null $kid */
         $kid = $header['kid'] ?? null;
 
         $jwks = $this->getSigningJWKSet($client, $expectedAlg, $kid);
 
-        if (! $jwsVerifier->verifyWithKeySet($jws, $jwks, 0)) {
+        if (! $this->jwsVerifier->verifyWithKeySet($jws, $jwks, 0)) {
             throw new InvalidArgumentException('Failed to validate JWT signature');
         }
 

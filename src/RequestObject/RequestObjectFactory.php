@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TMV\OpenIdClient\RequestObject;
 
 use Jose\Component\Core\AlgorithmManager;
+use Jose\Component\Core\AlgorithmManagerFactory;
 use Jose\Component\Encryption\Compression\CompressionMethodManager;
 use Jose\Component\Encryption\Compression\Deflate;
 use Jose\Component\Encryption\JWEBuilder;
@@ -22,6 +23,9 @@ use function TMV\OpenIdClient\jose_secret_key;
 
 class RequestObjectFactory
 {
+    /** @var AlgorithmManagerFactory */
+    private $algorithmManagerFactory;
+
     /** @var JWSBuilder */
     private $jwsBuilder;
 
@@ -35,17 +39,23 @@ class RequestObjectFactory
     private $encryptionSerializer;
 
     public function __construct(
-        ?AlgorithmManager $algorithmManager = null,
+        ?AlgorithmManagerFactory $algorithmManagerFactory = null,
         ?JWSBuilder $jwsBuilder = null,
         ?JWEBuilder $jweBuilder = null,
         ?JWSSerializer $signatureSerializer = null,
         ?JWESerializer $encryptionSerializer = null
     ) {
-        $algorithmManager = $algorithmManager ?: new AlgorithmManager([new None(), new RS256()]);
-        $this->jwsBuilder = $jwsBuilder ?: new JWSBuilder($algorithmManager);
+        if (! $algorithmManagerFactory) {
+            $algorithmManagerFactory = new AlgorithmManagerFactory();
+            $algorithmManagerFactory->add('none', new None());
+            $algorithmManagerFactory->add('RS256', new RS256());
+        }
+
+        $this->algorithmManagerFactory = $algorithmManagerFactory;
+        $this->jwsBuilder = $jwsBuilder ?: new JWSBuilder(new AlgorithmManager($algorithmManagerFactory->all()));
         $this->jweBuilder = $jweBuilder ?: new JWEBuilder(
-            $algorithmManager,
-            $algorithmManager,
+            new AlgorithmManager($algorithmManagerFactory->all()),
+            new AlgorithmManager($algorithmManagerFactory->all()),
             new CompressionMethodManager([new Deflate()])
         );
         $this->signatureSerializer = $signatureSerializer ?: new SignatureCompactSerializer();
@@ -99,7 +109,7 @@ class RequestObjectFactory
         if (0 === \strpos($alg, 'HS')) {
             $jwk = jose_secret_key($metadata->getClientSecret() ?: '');
         } else {
-            $jwk = $client->getJWKS()->selectKey('sig', null, ['alg' => $alg]);
+            $jwk = $client->getJWKS()->selectKey('sig', $this->algorithmManagerFactory->create([$alg])->get($alg));
         }
 
         if (! $jwk) {
@@ -137,7 +147,7 @@ class RequestObjectFactory
         $enc = $metadata->get('request_object_encryption_enc');
 
         if (\preg_match('/^(RSA|ECDH)/', $alg)) {
-            $jwk = $client->getJwks()->selectKey('enc', null, ['alg' => $alg]);
+            $jwk = $client->getJwks()->selectKey('enc', $this->algorithmManagerFactory->create([$alg])->get($alg));
         } else {
             $jwk = jose_secret_key(
                 $metadata->getClientSecret() ?: '',
