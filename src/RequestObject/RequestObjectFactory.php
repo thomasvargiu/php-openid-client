@@ -147,7 +147,9 @@ class RequestObjectFactory
         $enc = $metadata->get('request_object_encryption_enc');
 
         if (\preg_match('/^(RSA|ECDH)/', $alg)) {
-            $jwk = $client->getJwks()->selectKey('enc', $this->algorithmManagerFactory->create([$alg])->get($alg));
+            $jwk = $client->getIssuer()
+                ->getJwks()
+                ->selectKey('enc', $this->algorithmManagerFactory->create([$alg])->get($alg));
         } else {
             $jwk = jose_secret_key(
                 $metadata->getClientSecret() ?: '',
