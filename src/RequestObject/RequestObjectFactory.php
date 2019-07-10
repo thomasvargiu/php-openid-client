@@ -20,7 +20,7 @@ use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use function TMV\OpenIdClient\jose_secret_key;
 
-class RequestTokenFactory
+class RequestObjectFactory
 {
     /** @var JWSBuilder */
     private $jwsBuilder;
@@ -88,11 +88,9 @@ class RequestTokenFactory
         /** @var string $alg */
         $alg = $metadata->get('request_object_signing_alg') ?: 'none';
 
-        $header = ['alg' => $alg];
-
         if ('none' === $alg) {
             return \implode('.', [
-                base64url_encode((string) \json_encode($header)),
+                base64url_encode((string) \json_encode(['alg' => $alg])),
                 base64url_encode($payload),
                 '',
             ]);
@@ -102,15 +100,16 @@ class RequestTokenFactory
             $jwk = jose_secret_key($metadata->getClientSecret() ?: '');
         } else {
             $jwk = $client->getJWKS()->selectKey('sig', null, ['alg' => $alg]);
-
-            if (! $jwk) {
-                throw new RuntimeException('No key to sign with alg ' . $alg);
-            }
         }
 
-        if ($kid = $jwk->get('kid')) {
-            $header['kid'] = $kid;
+        if (! $jwk) {
+            throw new RuntimeException('No key to sign with alg ' . $alg);
         }
+
+        $header = \array_filter([
+            'alg' => $alg,
+            'kid' => $jwk->has('kid') ? $jwk->get('kid') : null,
+        ]);
 
         $jws = $this->jwsBuilder->create()
             ->withPayload($payload)
@@ -137,10 +136,6 @@ class RequestTokenFactory
 
         if (\preg_match('/^(RSA|ECDH)/', $alg)) {
             $jwk = $issuer->getJwks()->selectKey('enc', null, ['alg' => $alg, 'enc' => $enc]);
-
-            if (! $jwk) {
-                throw new RuntimeException('No key to sign with alg ' . $alg);
-            }
         } else {
             $jwk = jose_secret_key(
                 $metadata->getClientSecret() ?: '',
@@ -148,12 +143,19 @@ class RequestTokenFactory
             );
         }
 
+        if (! $jwk) {
+            throw new RuntimeException('No key to sign with alg ' . $alg);
+        }
+
+        $header = \array_filter([
+            'alg' => $alg,
+            'enc' => $enc,
+            'kid' => $jwk->has('kid') ? $jwk->get('kid') : null,
+        ]);
+
         $jwe = $this->jweBuilder->create()
             ->withPayload($payload)
-            ->withSharedProtectedHeader([
-                'alg' => $alg,
-                'enc' => $enc,
-            ])
+            ->withSharedProtectedHeader($header)
             ->addRecipient($jwk)
             ->build();
 
