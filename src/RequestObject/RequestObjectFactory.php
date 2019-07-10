@@ -106,9 +106,12 @@ class RequestObjectFactory
             throw new RuntimeException('No key to sign with alg ' . $alg);
         }
 
+        $ktyIsOct = $jwk->has('kty') && $jwk->get('kty') === 'oct';
+
         $header = \array_filter([
             'alg' => $alg,
-            'kid' => $jwk->has('kid') ? $jwk->get('kid') : null,
+            'typ' => 'JWT',
+            'kid' => ! $ktyIsOct && $jwk->has('kid') ? $jwk->get('kid') : null,
         ]);
 
         $jws = $this->jwsBuilder->create()
@@ -135,7 +138,7 @@ class RequestObjectFactory
         $enc = $metadata->get('request_object_encryption_enc');
 
         if (\preg_match('/^(RSA|ECDH)/', $alg)) {
-            $jwk = $issuer->getJwks()->selectKey('enc', null, ['alg' => $alg, 'enc' => $enc]);
+            $jwk = $issuer->getJwks()->selectKey('enc', null, ['alg' => $alg]);
         } else {
             $jwk = jose_secret_key(
                 $metadata->getClientSecret() ?: '',
@@ -147,10 +150,13 @@ class RequestObjectFactory
             throw new RuntimeException('No key to sign with alg ' . $alg);
         }
 
+        $ktyIsOct = $jwk->has('kty') && $jwk->get('kty') === 'oct';
+
         $header = \array_filter([
             'alg' => $alg,
             'enc' => $enc,
-            'kid' => $jwk->has('kid') ? $jwk->get('kid') : null,
+            'cty' => 'JWT',
+            'kid' => ! $ktyIsOct && $jwk->has('kid') ? $jwk->get('kid') : null,
         ]);
 
         $jwe = $this->jweBuilder->create()
