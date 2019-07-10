@@ -86,12 +86,16 @@ class AuthorizationService
         $issuerMetadata = $client->getIssuer()->getMetadata();
         $endpointUri = $issuerMetadata->getAuthorizationEndpoint();
 
-        $params = \array_filter(\array_merge([
+        $params = \array_merge([
             'client_id' => $clientMetadata->getClientId(),
             'scope' => 'openid',
             'response_type' => $clientMetadata->getResponseTypes()[0] ?? 'code',
             'redirect_uri' => $clientMetadata->getRedirectUris()[0] ?? null,
-        ], $params));
+        ], $params);
+
+        $params = \array_filter($params, static function ($value) {
+            return null !== $value;
+        });
 
         foreach ($params as $key => $value) {
             if (null === $value) {
