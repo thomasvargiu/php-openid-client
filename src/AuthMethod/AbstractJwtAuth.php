@@ -18,11 +18,11 @@ abstract class AbstractJwtAuth implements AuthMethodInterface
     ): RequestInterface {
         $clientId = $client->getMetadata()->getClientId();
 
-        $claims = [
+        $claims = \array_merge([
             'client_id' => $clientId,
             'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
             'client_assertion' => $this->createAuthJwt($client, $claims),
-        ];
+        ], $claims);
 
         $request->getBody()->write(\http_build_query($claims));
 

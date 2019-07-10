@@ -132,6 +132,7 @@ class PrivateKeyJwtTest extends TestCase
             'client_id' => 'foo',
             'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
             'client_assertion' => 'assertion',
+            'foo' => 'bar',
         ]);
 
         $stream->write($body)->shouldBeCalled();
