@@ -53,7 +53,7 @@ class UserinfoService
         $this->requestFactory = $requestFactory ?: Psr17FactoryDiscovery::findRequestFactory();
     }
 
-    public function getUserInfo(OpenIDClient $client, TokenSetInterface $tokenSet): array
+    public function getUserInfo(OpenIDClient $client, TokenSetInterface $tokenSet, bool $useBody = false): array
     {
         $accessToken = $tokenSet->getAccessToken();
 
@@ -80,9 +80,16 @@ class UserinfoService
             || $clientMetadata->getUserinfoEncryptedResponseAlg()
             || $clientMetadata->getUserinfoEncryptedResponseEnc();
 
-        $request = $this->requestFactory->createRequest('GET', $endpointUri)
-            ->withHeader('accept', $expectJwt ? 'application/jwt' : 'application/json')
-            ->withHeader('authorization', 'Bearer ' . $accessToken);
+        if ($useBody) {
+            $request = $this->requestFactory->createRequest('POST', $endpointUri)
+                ->withHeader('accept', $expectJwt ? 'application/jwt' : 'application/json')
+                ->withHeader('content-type', 'application/x-www-form-urlencoded');
+            $request->getBody()->write(\http_build_query(['access_token' => $accessToken]));
+        } else {
+            $request = $this->requestFactory->createRequest('GET', $endpointUri)
+                ->withHeader('accept', $expectJwt ? 'application/jwt' : 'application/json')
+                ->withHeader('authorization', 'Bearer ' . $accessToken);
+        }
 
         try {
             $response = $this->client->sendRequest($request);

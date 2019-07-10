@@ -39,7 +39,7 @@ class IssuerFactory
         $metadata = IssuerMetadata::fromClaims($this->discovery->discovery($uri));
         $jwks = $this->JKUFactory->loadFromUrl($metadata->getJwksUri());
 
-        return new Issuer($metadata, $jwks);
+        return new Issuer($metadata, $jwks, $this->JKUFactory);
     }
 
     public function fromWebFinger(string $resource): IssuerInterface
@@ -47,6 +47,6 @@ class IssuerFactory
         $metadata = IssuerMetadata::fromClaims($this->discovery->webfinger($resource));
         $jwks = $this->JKUFactory->loadFromUrl($metadata->getJwksUri());
 
-        return new Issuer($metadata, $jwks);
+        return new Issuer($metadata, $jwks, $this->JKUFactory);
     }
 }

@@ -11,6 +11,7 @@ use Jose\Component\Checker\IssuedAtChecker;
 use Jose\Component\Checker\IssuerChecker;
 use Jose\Component\Checker\NotBeforeChecker;
 use Jose\Component\Core\AlgorithmManager;
+use Jose\Component\Core\JWK;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\JWSVerifier;
@@ -22,6 +23,7 @@ use TMV\OpenIdClient\ClaimChecker\NonceChecker;
 use TMV\OpenIdClient\ClientInterface;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\RuntimeException;
+use TMV\OpenIdClient\IssuerInterface;
 use function TMV\OpenIdClient\jose_secret_key;
 use TMV\OpenIdClient\Model\AuthSessionInterface;
 
@@ -143,35 +145,54 @@ class IdTokenVerifier implements IdTokenVerifierInterface
             $this->algorithmManager
         );
 
-        if (0 === \strpos($expectedAlg, 'HS')) {
-            $clientSecret = $metadata->getClientSecret();
-
-            if (! $clientSecret) {
-                throw new RuntimeException('Unable to verify token without client_secret');
-            }
-
-            $jwks = new JWKSet([jose_secret_key($clientSecret)]);
-        } else {
-            $jwks = $client->getIssuer()->getJwks();
-        }
-
+        /** @var string|null $kid */
         $kid = $header['kid'] ?? null;
 
-        if ($kid) {
-            $jwk = $jwks->selectKey('sig', null, ['kid' => $kid]);
-            if (! $jwk) {
-                throw new RuntimeException('Unable to find the jwk with the provided kid: ' . $kid);
-            }
+        $jwks = $this->getSigningJWKSet($client, $expectedAlg, $kid);
 
-            $result = $jwsVerifier->verifyWithKey($jws, $jwk, 0);
-        } else {
-            $result = $jwsVerifier->verifyWithKeySet($jws, $jwks, 0);
-        }
-
-        if (! $result) {
+        if (! $jwsVerifier->verifyWithKeySet($jws, $jwks, 0)) {
             throw new InvalidArgumentException('Failed to validate JWT signature');
         }
 
         return $payload;
+    }
+
+    private function getSigningJWKSet(ClientInterface $client, string $expectedAlg, ?string $kid = null): JWKSet
+    {
+        $metadata = $client->getMetadata();
+        $issuer = $client->getIssuer();
+
+        if (0 !== \strpos($expectedAlg, 'HS')) {
+            // not symmetric key
+            return $kid
+                ? new JWKSet([$this->getIssuerJWKFromKid($issuer, $kid)])
+                : $issuer->getJwks();
+        }
+
+        $clientSecret = $metadata->getClientSecret();
+
+        if (! $clientSecret) {
+            throw new RuntimeException('Unable to verify token without client_secret');
+        }
+
+        return new JWKSet([jose_secret_key($clientSecret)]);
+    }
+
+    private function getIssuerJWKFromKid(IssuerInterface $issuer, string $kid): JWK
+    {
+        $jwks = $issuer->getJwks();
+
+        $jwk = $jwks->selectKey('sig', null, ['kid' => $kid]);
+
+        if (! $jwk) {
+            $issuer->updateJwks();
+            $jwk = $issuer->getJwks()->selectKey('sig', null, ['kid' => $kid]);
+        }
+
+        if (! $jwk) {
+            throw new RuntimeException('Unable to find the jwk with the provided kid: ' . $kid);
+        }
+
+        return $jwk;
     }
 }

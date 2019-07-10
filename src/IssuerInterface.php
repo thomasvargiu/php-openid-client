@@ -12,4 +12,9 @@ interface IssuerInterface
     public function getMetadata(): IssuerMetadataInterface;
 
     public function getJwks(): JWKSet;
+
+    /**
+     * Force update of issuer JWKs
+     */
+    public function updateJwks(): void;
 }
