@@ -4,27 +4,34 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\RequestObject;
 
+use function array_filter;
+use function array_merge;
+use function implode;
 use Jose\Component\Core\AlgorithmManager;
-use Jose\Component\Core\AlgorithmManagerFactory;
 use Jose\Component\Encryption\Compression\CompressionMethodManager;
 use Jose\Component\Encryption\Compression\Deflate;
 use Jose\Component\Encryption\JWEBuilder;
 use Jose\Component\Encryption\Serializer\CompactSerializer as EncryptionCompactSerializer;
-use Jose\Component\Encryption\Serializer\JWESerializer as JWESerializer;
+use Jose\Component\Encryption\Serializer\JWESerializer;
 use Jose\Component\Signature\Algorithm\None;
 use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\CompactSerializer as SignatureCompactSerializer;
-use Jose\Component\Signature\Serializer\Serializer as JWSSerializer;
+use Jose\Component\Signature\Serializer\JWSSerializer;
+use function json_encode;
+use function preg_match;
+use function random_bytes;
+use function strpos;
+use function time;
 use function TMV\OpenIdClient\base64url_encode;
-use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
 use TMV\OpenIdClient\Exception\RuntimeException;
 use function TMV\OpenIdClient\jose_secret_key;
 
 class RequestObjectFactory
 {
-    /** @var AlgorithmManagerFactory */
-    private $algorithmManagerFactory;
+    /** @var AlgorithmManager */
+    private $algorithmManager;
 
     /** @var JWSBuilder */
     private $jwsBuilder;
@@ -39,23 +46,17 @@ class RequestObjectFactory
     private $encryptionSerializer;
 
     public function __construct(
-        ?AlgorithmManagerFactory $algorithmManagerFactory = null,
+        ?AlgorithmManager $algorithmManager = null,
         ?JWSBuilder $jwsBuilder = null,
         ?JWEBuilder $jweBuilder = null,
         ?JWSSerializer $signatureSerializer = null,
         ?JWESerializer $encryptionSerializer = null
     ) {
-        if (! $algorithmManagerFactory) {
-            $algorithmManagerFactory = new AlgorithmManagerFactory();
-            $algorithmManagerFactory->add('none', new None());
-            $algorithmManagerFactory->add('RS256', new RS256());
-        }
-
-        $this->algorithmManagerFactory = $algorithmManagerFactory;
-        $this->jwsBuilder = $jwsBuilder ?: new JWSBuilder(new AlgorithmManager($algorithmManagerFactory->all()));
+        $this->algorithmManager = $algorithmManager ?: new AlgorithmManager([new None(), new RS256()]);
+        $this->jwsBuilder = $jwsBuilder ?: new JWSBuilder($this->algorithmManager);
         $this->jweBuilder = $jweBuilder ?: new JWEBuilder(
-            new AlgorithmManager($algorithmManagerFactory->all()),
-            new AlgorithmManager($algorithmManagerFactory->all()),
+            $this->algorithmManager,
+            $this->algorithmManager,
             new CompressionMethodManager([new Deflate()])
         );
         $this->signatureSerializer = $signatureSerializer ?: new SignatureCompactSerializer();
@@ -75,16 +76,16 @@ class RequestObjectFactory
         $metadata = $client->getMetadata();
         $issuer = $client->getIssuer();
 
-        $payload = \json_encode(\array_merge($params, [
+        $payload = json_encode(array_merge($params, [
             'iss' => $metadata->getClientId(),
             'aud' => $issuer->getMetadata()->getIssuer(),
             'client_id' => $metadata->getClientId(),
-            'jti' => base64url_encode(\random_bytes(32)),
-            'iat' => \time(),
-            'exp' => \time() + 300,
+            'jti' => base64url_encode(random_bytes(32)),
+            'iat' => time(),
+            'exp' => time() + 300,
         ]));
 
-        if (! $payload) {
+        if (false === $payload) {
             throw new RuntimeException('Unable to encode payload');
         }
 
@@ -99,26 +100,26 @@ class RequestObjectFactory
         $alg = $metadata->get('request_object_signing_alg') ?: 'none';
 
         if ('none' === $alg) {
-            return \implode('.', [
-                base64url_encode((string) \json_encode(['alg' => $alg])),
+            return implode('.', [
+                base64url_encode((string) json_encode(['alg' => $alg])),
                 base64url_encode($payload),
                 '',
             ]);
         }
 
-        if (0 === \strpos($alg, 'HS')) {
+        if (0 === strpos($alg, 'HS')) {
             $jwk = jose_secret_key($metadata->getClientSecret() ?: '');
         } else {
-            $jwk = $client->getJWKS()->selectKey('sig', $this->algorithmManagerFactory->create([$alg])->get($alg));
+            $jwk = $client->getJwks()->selectKey('sig', $this->algorithmManager->get($alg));
         }
 
-        if (! $jwk) {
+        if (null === $jwk) {
             throw new RuntimeException('No key to sign with alg ' . $alg);
         }
 
         $ktyIsOct = $jwk->has('kty') && $jwk->get('kty') === 'oct';
 
-        $header = \array_filter([
+        $header = array_filter([
             'alg' => $alg,
             'typ' => 'JWT',
             'kid' => ! $ktyIsOct && $jwk->has('kid') ? $jwk->get('kid') : null,
@@ -139,17 +140,17 @@ class RequestObjectFactory
         /** @var null|string $alg */
         $alg = $metadata->get('request_object_encryption_alg');
 
-        if (! $alg) {
+        if (null === $alg) {
             return $payload;
         }
 
         /** @var null|string $enc */
         $enc = $metadata->get('request_object_encryption_enc');
 
-        if (\preg_match('/^(RSA|ECDH)/', $alg)) {
+        if ((bool) preg_match('/^(RSA|ECDH)/', $alg)) {
             $jwk = $client->getIssuer()
                 ->getJwks()
-                ->selectKey('enc', $this->algorithmManagerFactory->create([$alg])->get($alg));
+                ->selectKey('enc', $this->algorithmManager->get($alg));
         } else {
             $jwk = jose_secret_key(
                 $metadata->getClientSecret() ?: '',
@@ -157,13 +158,13 @@ class RequestObjectFactory
             );
         }
 
-        if (! $jwk) {
+        if (null === $jwk) {
             throw new RuntimeException('No key to sign with alg ' . $alg);
         }
 
         $ktyIsOct = $jwk->has('kty') && $jwk->get('kty') === 'oct';
 
-        $header = \array_filter([
+        $header = array_filter([
             'alg' => $alg,
             'enc' => $enc,
             'cty' => 'JWT',

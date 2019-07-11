@@ -25,7 +25,7 @@ class ParseMetadataResponseTest extends TestCase
 
         $data = parse_metadata_response($response->reveal());
 
-        $this->assertSame(['foo' => 'bar'], $data);
+        static::assertSame(['foo' => 'bar'], $data);
     }
 
     public function testWithInvalidContent(): void

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\AuthMethod;
 
+use function http_build_query;
 use Psr\Http\Message\RequestInterface;
-use TMV\OpenIdClient\ClientInterface as OpenIDClient;
+use TMV\OpenIdClient\Client\ClientInterface as OpenIDClient;
 
 final class None implements AuthMethodInterface
 {
@@ -19,7 +20,7 @@ final class None implements AuthMethodInterface
         OpenIDClient $client,
         array $claims
     ): RequestInterface {
-        $request->getBody()->write(\http_build_query($claims));
+        $request->getBody()->write(http_build_query($claims));
 
         return $request;
     }

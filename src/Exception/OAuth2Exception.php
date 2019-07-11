@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\Exception;
 
+use function array_filter;
+use function array_key_exists;
+use function is_array;
+use function json_decode;
 use JsonSerializable;
 use Psr\Http\Message\ResponseInterface;
+use function sprintf;
 use Throwable;
 
 class OAuth2Exception extends RuntimeException implements JsonSerializable
@@ -29,10 +34,10 @@ class OAuth2Exception extends RuntimeException implements JsonSerializable
      */
     public static function fromResponse(ResponseInterface $response, Throwable $previous = null): self
     {
-        $data = \json_decode((string) $response->getBody(), true);
+        $data = json_decode((string) $response->getBody(), true);
 
-        if (! \is_array($data) || ! isset($data['error'])) {
-            throw new RemoteException($response, $response->getReasonPhrase(), $response->getStatusCode(), $previous);
+        if (! is_array($data) || ! isset($data['error'])) {
+            throw new RemoteException($response, $response->getReasonPhrase(), $previous);
         }
 
         return self::fromParameters($data);
@@ -46,8 +51,8 @@ class OAuth2Exception extends RuntimeException implements JsonSerializable
      */
     public static function fromParameters(array $params, Throwable $previous = null): self
     {
-        if (! \array_key_exists('error', $params)) {
-            throw new RuntimeException('Invalid OAuth2 exception', 0, $previous);
+        if (! array_key_exists('error', $params)) {
+            throw new InvalidArgumentException('Invalid OAuth2 exception', 0, $previous);
         }
 
         return new self(
@@ -67,8 +72,8 @@ class OAuth2Exception extends RuntimeException implements JsonSerializable
         Throwable $previous = null
     ) {
         $message = $error;
-        if ($description) {
-            $message = \sprintf('%s (%s)', $description, $error);
+        if (null !== $description) {
+            $message = sprintf('%s (%s)', $description, $error);
         }
 
         parent::__construct($message, $code, $previous);
@@ -109,6 +114,6 @@ class OAuth2Exception extends RuntimeException implements JsonSerializable
             'error_uri' => $this->getErrorUri(),
         ];
 
-        return \array_filter($data);
+        return array_filter($data);
     }
 }

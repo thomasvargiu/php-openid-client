@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\Token;
 
-use TMV\OpenIdClient\ClientInterface;
-use TMV\OpenIdClient\Model\AuthSessionInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
+use TMV\OpenIdClient\Session\AuthSessionInterface;
 
 interface TokenSetVerifierInterface
 {

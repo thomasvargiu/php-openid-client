@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\AuthMethod;
 
-use TMV\OpenIdClient\Exception\RuntimeException;
+use TMV\OpenIdClient\Exception\InvalidArgumentException;
 
-class AuthMethodFactory implements AuthMethodFactoryInterface
+final class AuthMethodFactory implements AuthMethodFactoryInterface
 {
     /** @var AuthMethodInterface[] */
     private $methods = [];
@@ -40,8 +40,8 @@ class AuthMethodFactory implements AuthMethodFactoryInterface
     {
         $method = $this->methods[$authMethod] ?? null;
 
-        if (! $method) {
-            throw new RuntimeException('Unsupported auth method "' . $authMethod . '"');
+        if (null === $method) {
+            throw new InvalidArgumentException('Unsupported auth method "' . $authMethod . '"');
         }
 
         return $method;

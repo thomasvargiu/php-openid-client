@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\AuthMethod;
 
+use function base64_encode;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\ClientSecretBasic;
-use TMV\OpenIdClient\ClientInterface;
-use TMV\OpenIdClient\Model\ClientMetadataInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
+use TMV\OpenIdClient\Client\Metadata\ClientMetadataInterface;
+use TMV\OpenIdClient\Exception\InvalidArgumentException;
 
 class ClientSecretBasicTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
         $auth = new ClientSecretBasic();
-        $this->assertSame('client_secret_basic', $auth->getSupportedMethod());
+        static::assertSame('client_secret_basic', $auth->getSupportedMethod());
     }
 
     public function testCreateRequest(): void
@@ -33,7 +35,7 @@ class ClientSecretBasicTest extends TestCase
         $metadata->getClientId()->willReturn('foo');
         $metadata->getClientSecret()->willReturn('bar');
 
-        $request->withHeader('Authorization', 'Basic ' . \base64_encode('foo:bar'))
+        $request->withHeader('Authorization', 'Basic ' . base64_encode('foo:bar'))
             ->shouldBeCalled()
             ->willReturn($requestWithHeader->reveal());
 
@@ -48,6 +50,27 @@ class ClientSecretBasicTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($requestWithHeader->reveal(), $result);
+        static::assertSame($requestWithHeader->reveal(), $result);
+    }
+
+    public function testCreateRequestWithNoClientSecret(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $auth = new ClientSecretBasic();
+
+        $request = $this->prophesize(RequestInterface::class);
+        $client = $this->prophesize(ClientInterface::class);
+        $metadata = $this->prophesize(ClientMetadataInterface::class);
+
+        $client->getMetadata()->willReturn($metadata->reveal());
+        $metadata->getClientId()->willReturn('foo');
+        $metadata->getClientSecret()->willReturn(null);
+
+        $auth->createRequest(
+            $request->reveal(),
+            $client->reveal(),
+            []
+        );
     }
 }

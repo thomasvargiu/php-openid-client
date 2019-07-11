@@ -4,33 +4,37 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\AuthMethod;
 
+use function http_build_query;
 use Jose\Component\Core\JWK;
 use Jose\Component\Signature\JWS;
 use Jose\Component\Signature\JWSBuilder;
-use Jose\Component\Signature\Serializer\Serializer;
+use Jose\Component\Signature\Serializer\JWSSerializer;
+use function json_decode;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
+use function time;
 use TMV\OpenIdClient\AuthMethod\ClientSecretJwt;
 use function TMV\OpenIdClient\base64url_encode;
-use TMV\OpenIdClient\ClientInterface;
-use TMV\OpenIdClient\IssuerInterface;
-use TMV\OpenIdClient\Model\ClientMetadataInterface;
-use TMV\OpenIdClient\Model\IssuerMetadataInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
+use TMV\OpenIdClient\Client\Metadata\ClientMetadataInterface;
+use TMV\OpenIdClient\Exception\InvalidArgumentException;
+use TMV\OpenIdClient\Issuer\IssuerInterface;
+use TMV\OpenIdClient\Issuer\Metadata\IssuerMetadataInterface;
 
 class ClientSecretJwtTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
         $auth = new ClientSecretJwt();
-        $this->assertSame('client_secret_jwt', $auth->getSupportedMethod());
+        static::assertSame('client_secret_jwt', $auth->getSupportedMethod());
     }
 
     public function testCreateRequest(): void
     {
         $jwsBuilder = $this->prophesize(JWSBuilder::class);
-        $serializer = $this->prophesize(Serializer::class);
+        $serializer = $this->prophesize(JWSSerializer::class);
 
         $auth = new ClientSecretJwt(
             $jwsBuilder->reveal(),
@@ -58,24 +62,24 @@ class ClientSecretJwtTest extends TestCase
 
         $jwsBuilder->create()->shouldBeCalled()->willReturn($jwsBuilder2->reveal());
         $jwsBuilder2->withPayload(Argument::that(function (string $payload) {
-            $decoded = \json_decode($payload, true);
+            $decoded = json_decode($payload, true);
 
-            $this->assertIsArray($decoded);
+            static::assertIsArray($decoded);
 
-            $this->assertArrayHasKey('iss', $decoded);
-            $this->assertArrayHasKey('sub', $decoded);
-            $this->assertArrayHasKey('aud', $decoded);
-            $this->assertArrayHasKey('iat', $decoded);
-            $this->assertArrayHasKey('exp', $decoded);
-            $this->assertArrayHasKey('jti', $decoded);
+            static::assertArrayHasKey('iss', $decoded);
+            static::assertArrayHasKey('sub', $decoded);
+            static::assertArrayHasKey('aud', $decoded);
+            static::assertArrayHasKey('iat', $decoded);
+            static::assertArrayHasKey('exp', $decoded);
+            static::assertArrayHasKey('jti', $decoded);
 
-            $this->assertSame('bar', $decoded['foo'] ?? null);
-            $this->assertSame('foo', $decoded['iss'] ?? null);
-            $this->assertSame('foo', $decoded['sub'] ?? null);
-            $this->assertSame('issuer', $decoded['aud'] ?? null);
-            $this->assertLessThanOrEqual(\time(), $decoded['iat']);
-            $this->assertLessThanOrEqual(\time() + 60, $decoded['exp']);
-            $this->assertGreaterThan(\time(), $decoded['exp']);
+            static::assertSame('bar', $decoded['foo'] ?? null);
+            static::assertSame('foo', $decoded['iss'] ?? null);
+            static::assertSame('foo', $decoded['sub'] ?? null);
+            static::assertSame('issuer', $decoded['aud'] ?? null);
+            static::assertLessThanOrEqual(time(), $decoded['iat']);
+            static::assertLessThanOrEqual(time() + 60, $decoded['exp']);
+            static::assertGreaterThan(time(), $decoded['exp']);
 
             return true;
         }))
@@ -85,8 +89,8 @@ class ClientSecretJwtTest extends TestCase
         $jwsBuilder3->addSignature(Argument::allOf(
             Argument::type(JWK::class),
             Argument::that(function (JWK $jwk) {
-                $this->assertSame('oct', $jwk->get('kty'));
-                $this->assertSame(base64url_encode('bar'), $jwk->get('k'));
+                static::assertSame('oct', $jwk->get('kty'));
+                static::assertSame(base64url_encode('bar'), $jwk->get('k'));
 
                 return true;
             })
@@ -103,7 +107,7 @@ class ClientSecretJwtTest extends TestCase
             ->shouldBeCalled()
             ->willReturn('assertion');
 
-        $body = \http_build_query([
+        $body = http_build_query([
             'client_id' => 'foo',
             'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
             'client_assertion' => 'assertion',
@@ -120,6 +124,33 @@ class ClientSecretJwtTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($request->reveal(), $result);
+        static::assertSame($request->reveal(), $result);
+    }
+
+    public function testCreateRequestWithNoClientSecret(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $jwsBuilder = $this->prophesize(JWSBuilder::class);
+        $serializer = $this->prophesize(JWSSerializer::class);
+
+        $auth = new ClientSecretJwt(
+            $jwsBuilder->reveal(),
+            $serializer->reveal()
+        );
+
+        $request = $this->prophesize(RequestInterface::class);
+        $client = $this->prophesize(ClientInterface::class);
+        $metadata = $this->prophesize(ClientMetadataInterface::class);
+
+        $client->getMetadata()->willReturn($metadata->reveal());
+        $metadata->getClientId()->willReturn('foo');
+        $metadata->getClientSecret()->willReturn(null);
+
+        $auth->createRequest(
+            $request->reveal(),
+            $client->reveal(),
+            []
+        );
     }
 }

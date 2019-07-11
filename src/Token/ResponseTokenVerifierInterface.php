@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\Token;
 
-use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
 
 interface ResponseTokenVerifierInterface
 {

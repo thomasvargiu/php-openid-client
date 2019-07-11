@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c11dce204c8a86afa3c90488aa3cf3a2",
+    "content-hash": "1343fe5799de7f991bf78473512d4a5d",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -1035,7 +1035,7 @@
         },
         {
             "name": "web-token/jwt-checker",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-checker.git",
@@ -1106,7 +1106,7 @@
         },
         {
             "name": "web-token/jwt-core",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-core.git",
@@ -1184,8 +1184,91 @@
             "time": "2019-06-22T13:11:37+00:00"
         },
         {
+            "name": "web-token/jwt-encryption",
+            "version": "v2.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/web-token/jwt-encryption.git",
+                "reference": "94b181e2a4a2bb8775125e79458265b76be8c339"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/web-token/jwt-encryption/zipball/94b181e2a4a2bb8775125e79458265b76be8c339",
+                "reference": "94b181e2a4a2bb8775125e79458265b76be8c339",
+                "shasum": ""
+            },
+            "require": {
+                "lib-openssl": "*",
+                "web-token/jwt-core": "^2.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.0"
+            },
+            "suggest": {
+                "web-token/jwt-encryption-algorithm-aescbc": "AES CBC Based Content Encryption Algorithms",
+                "web-token/jwt-encryption-algorithm-aesgcm": "AES GCM Based Content Encryption Algorithms",
+                "web-token/jwt-encryption-algorithm-aesgcmkw": "AES GCM Key Wrapping Based Key Encryption Algorithms",
+                "web-token/jwt-encryption-algorithm-aeskw": "AES Key Wrapping Based Key Encryption Algorithms",
+                "web-token/jwt-encryption-algorithm-dir": "Direct Key Encryption Algorithms",
+                "web-token/jwt-encryption-algorithm-ecdh-es": "ECDH-ES Based Key Encryption Algorithms",
+                "web-token/jwt-encryption-algorithm-experimental": "Experimental Key and Signature Algorithms",
+                "web-token/jwt-encryption-algorithm-pbes2": "PBES2 Based Key Encryption Algorithms",
+                "web-token/jwt-encryption-algorithm-rsa": "RSA Based Key Encryption Algorithms"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "v1.0": "1.0.x-dev",
+                    "v1.1": "1.1.x-dev",
+                    "v1.2": "1.2.x-dev",
+                    "v1.3": "1.3.x-dev",
+                    "v2.0": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jose\\Component\\Encryption\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Florent Morselli",
+                    "homepage": "https://github.com/Spomky"
+                },
+                {
+                    "name": "All contributors",
+                    "homepage": "https://github.com/web-token/jwt-encryption/contributors"
+                }
+            ],
+            "description": "Encryption component of the JWT Framework.",
+            "homepage": "https://github.com/web-token",
+            "keywords": [
+                "JOSE",
+                "JWE",
+                "JWK",
+                "JWKSet",
+                "JWS",
+                "Jot",
+                "RFC7515",
+                "RFC7516",
+                "RFC7517",
+                "RFC7518",
+                "RFC7519",
+                "RFC7520",
+                "bundle",
+                "jwa",
+                "jwt",
+                "symfony"
+            ],
+            "time": "2019-07-10T09:56:43+00:00"
+        },
+        {
             "name": "web-token/jwt-key-mgmt",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-key-mgmt.git",
@@ -1268,7 +1351,7 @@
         },
         {
             "name": "web-token/jwt-signature",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature.git",
@@ -1347,7 +1430,7 @@
         },
         {
             "name": "web-token/jwt-signature-algorithm-rsa",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature-algorithm-rsa.git",
@@ -1419,7 +1502,7 @@
         },
         {
             "name": "web-token/jwt-util-ecc",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-util-ecc.git",
@@ -1490,16 +1573,16 @@
         },
         {
             "name": "zendframework/zend-diactoros",
-            "version": "2.1.2",
+            "version": "2.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-diactoros.git",
-                "reference": "37bf68b428850ee26ed7c3be6c26236dd95a95f1"
+                "reference": "279723778c40164bcf984a2df12ff2c6ec5e61c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/37bf68b428850ee26ed7c3be6c26236dd95a95f1",
-                "reference": "37bf68b428850ee26ed7c3be6c26236dd95a95f1",
+                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/279723778c40164bcf984a2df12ff2c6ec5e61c1",
+                "reference": "279723778c40164bcf984a2df12ff2c6ec5e61c1",
                 "shasum": ""
             },
             "require": {
@@ -1552,7 +1635,7 @@
                 "psr",
                 "psr-7"
             ],
-            "time": "2019-04-29T21:11:00+00:00"
+            "time": "2019-07-10T16:13:25+00:00"
         }
     ],
     "packages-dev": [
@@ -3418,6 +3501,57 @@
             ],
             "description": "PHPStan rules for detecting usage of deprecated classes, methods, properties, constants and traits.",
             "time": "2019-05-28T19:54:04+00:00"
+        },
+        {
+            "name": "phpstan/phpstan-strict-rules",
+            "version": "0.11.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/phpstan-strict-rules.git",
+                "reference": "a203a7afdda073d4ea405a6d9007a5b32de3be61"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/phpstan-strict-rules/zipball/a203a7afdda073d4ea405a6d9007a5b32de3be61",
+                "reference": "a203a7afdda073d4ea405a6d9007a5b32de3be61",
+                "shasum": ""
+            },
+            "require": {
+                "nikic/php-parser": "^4.0",
+                "php": "~7.1",
+                "phpstan/phpstan": "^0.11.4"
+            },
+            "require-dev": {
+                "consistence/coding-standard": "^3.0.1",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+                "jakub-onderka/php-parallel-lint": "^1.0",
+                "phing/phing": "^2.16.0",
+                "phpstan/phpstan-phpunit": "^0.11",
+                "phpunit/phpunit": "^7.0",
+                "slevomat/coding-standard": "^4.5.2"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.11-dev"
+                },
+                "phpstan": {
+                    "includes": [
+                        "rules.neon"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PHPStan\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Extra strict and opinionated rules for PHPStan",
+            "time": "2019-05-12T16:59:47+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -5367,91 +5501,8 @@
             "time": "2019-06-13T22:48:21+00:00"
         },
         {
-            "name": "web-token/jwt-encryption",
-            "version": "v2.0.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/web-token/jwt-encryption.git",
-                "reference": "278f005d273030217e7e72ca00789027ed07ba90"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-encryption/zipball/278f005d273030217e7e72ca00789027ed07ba90",
-                "reference": "278f005d273030217e7e72ca00789027ed07ba90",
-                "shasum": ""
-            },
-            "require": {
-                "lib-openssl": "*",
-                "web-token/jwt-core": "^2.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.0"
-            },
-            "suggest": {
-                "web-token/jwt-encryption-algorithm-aescbc": "AES CBC Based Content Encryption Algorithms",
-                "web-token/jwt-encryption-algorithm-aesgcm": "AES GCM Based Content Encryption Algorithms",
-                "web-token/jwt-encryption-algorithm-aesgcmkw": "AES GCM Key Wrapping Based Key Encryption Algorithms",
-                "web-token/jwt-encryption-algorithm-aeskw": "AES Key Wrapping Based Key Encryption Algorithms",
-                "web-token/jwt-encryption-algorithm-dir": "Direct Key Encryption Algorithms",
-                "web-token/jwt-encryption-algorithm-ecdh-es": "ECDH-ES Based Key Encryption Algorithms",
-                "web-token/jwt-encryption-algorithm-experimental": "Experimental Key and Signature Algorithms",
-                "web-token/jwt-encryption-algorithm-pbes2": "PBES2 Based Key Encryption Algorithms",
-                "web-token/jwt-encryption-algorithm-rsa": "RSA Based Key Encryption Algorithms"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "v1.0": "1.0.x-dev",
-                    "v1.1": "1.1.x-dev",
-                    "v1.2": "1.2.x-dev",
-                    "v1.3": "1.3.x-dev",
-                    "v2.0": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Jose\\Component\\Encryption\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Florent Morselli",
-                    "homepage": "https://github.com/Spomky"
-                },
-                {
-                    "name": "All contributors",
-                    "homepage": "https://github.com/web-token/jwt-encryption/contributors"
-                }
-            ],
-            "description": "Encryption component of the JWT Framework.",
-            "homepage": "https://github.com/web-token",
-            "keywords": [
-                "JOSE",
-                "JWE",
-                "JWK",
-                "JWKSet",
-                "JWS",
-                "Jot",
-                "RFC7515",
-                "RFC7516",
-                "RFC7517",
-                "RFC7518",
-                "RFC7519",
-                "RFC7520",
-                "bundle",
-                "jwa",
-                "jwt",
-                "symfony"
-            ],
-            "time": "2019-06-22T13:23:12+00:00"
-        },
-        {
             "name": "web-token/jwt-encryption-algorithm-aescbc",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-encryption-algorithm-aescbc.git",
@@ -5522,7 +5573,7 @@
         },
         {
             "name": "web-token/jwt-encryption-algorithm-aesgcm",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-encryption-algorithm-aesgcm.git",
@@ -5593,7 +5644,7 @@
         },
         {
             "name": "web-token/jwt-encryption-algorithm-aesgcmkw",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-encryption-algorithm-aesgcmkw.git",
@@ -5665,7 +5716,7 @@
         },
         {
             "name": "web-token/jwt-encryption-algorithm-aeskw",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-encryption-algorithm-aeskw.git",
@@ -5737,7 +5788,7 @@
         },
         {
             "name": "web-token/jwt-encryption-algorithm-dir",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-encryption-algorithm-dir.git",
@@ -5808,7 +5859,7 @@
         },
         {
             "name": "web-token/jwt-encryption-algorithm-ecdh-es",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-encryption-algorithm-ecdh-es.git",
@@ -5881,7 +5932,7 @@
         },
         {
             "name": "web-token/jwt-encryption-algorithm-experimental",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-encryption-algorithm-experimental.git",
@@ -5953,7 +6004,7 @@
         },
         {
             "name": "web-token/jwt-encryption-algorithm-pbes2",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-encryption-algorithm-pbes2.git",
@@ -6024,7 +6075,7 @@
         },
         {
             "name": "web-token/jwt-encryption-algorithm-rsa",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-encryption-algorithm-rsa.git",
@@ -6096,7 +6147,7 @@
         },
         {
             "name": "web-token/jwt-signature-algorithm-ecdsa",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature-algorithm-ecdsa.git",
@@ -6168,7 +6219,7 @@
         },
         {
             "name": "web-token/jwt-signature-algorithm-eddsa",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature-algorithm-eddsa.git",
@@ -6239,7 +6290,7 @@
         },
         {
             "name": "web-token/jwt-signature-algorithm-experimental",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature-algorithm-experimental.git",
@@ -6311,7 +6362,7 @@
         },
         {
             "name": "web-token/jwt-signature-algorithm-hmac",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature-algorithm-hmac.git",
@@ -6382,7 +6433,7 @@
         },
         {
             "name": "web-token/jwt-signature-algorithm-none",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature-algorithm-none.git",

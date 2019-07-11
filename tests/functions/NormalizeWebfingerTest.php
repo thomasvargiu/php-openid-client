@@ -17,7 +17,7 @@ class NormalizeWebfingerTest extends TestCase
      */
     public function testNormalize(string $input, string $expected): void
     {
-        $this->assertSame($expected, normalize_webfinger($input));
+        static::assertSame($expected, normalize_webfinger($input));
     }
 
     public function normalizeProvider(): array

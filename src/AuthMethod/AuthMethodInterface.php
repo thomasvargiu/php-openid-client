@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace TMV\OpenIdClient\AuthMethod;
 
 use Psr\Http\Message\RequestInterface;
-use TMV\OpenIdClient\ClientInterface as OpenIDClient;
+use TMV\OpenIdClient\Client\ClientInterface as OpenIDClient;
 
 interface AuthMethodInterface
 {

@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\Middleware;
 
+use function class_exists;
 use Dflydev\FigCookies\Cookies;
 use Dflydev\FigCookies\FigResponseCookies;
 use Dflydev\FigCookies\Modifier\SameSite;
 use Dflydev\FigCookies\SetCookie;
+use function is_array;
+use function json_decode;
+use function json_encode;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TMV\OpenIdClient\Exception\LogicException;
-use TMV\OpenIdClient\Model\AuthSession;
-use TMV\OpenIdClient\Model\AuthSessionInterface;
+use TMV\OpenIdClient\Session\AuthSession;
+use TMV\OpenIdClient\Session\AuthSessionInterface;
 
 class SessionCookieMiddleware implements MiddlewareInterface
 {
@@ -34,17 +38,17 @@ class SessionCookieMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (! \class_exists(Cookies::class)) {
+        if (! class_exists(Cookies::class)) {
             throw new LogicException('To use the SessionCookieMiddleware you should install dflydev/fig-cookies package');
         }
 
         $cookies = Cookies::fromRequest($request);
         $sessionCookie = $cookies->get($this->cookieName);
 
-        $cookieValue = $sessionCookie ? $sessionCookie->getValue() : null;
-        $data = $cookieValue ? \json_decode($cookieValue, true) : [];
+        $cookieValue = null !== $sessionCookie ? $sessionCookie->getValue() : null;
+        $data = null !== $cookieValue ? json_decode($cookieValue, true) : [];
 
-        if (! \is_array($data)) {
+        if (! is_array($data)) {
             $data = [];
         }
 
@@ -53,7 +57,7 @@ class SessionCookieMiddleware implements MiddlewareInterface
         $response = $handler->handle($request->withAttribute(static::SESSION_ATTRIBUTE, $authSession));
 
         /** @var string $cookieValue */
-        $cookieValue = \json_encode($authSession->jsonSerialize());
+        $cookieValue = json_encode($authSession->jsonSerialize());
 
         $sessionCookie = SetCookie::create($this->cookieName)
             ->withValue($cookieValue)

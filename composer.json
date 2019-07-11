@@ -16,7 +16,12 @@
     },
     "keywords": [
         "openid",
-        "oauth2"
+        "openid connect",
+        "oidc",
+        "oauth2",
+        "token",
+        "authentication",
+        "identity"
     ],
     "require": {
         "php": "^7.2",
@@ -31,6 +36,7 @@
         "psr/http-server-middleware": "^1.0",
         "web-token/jwt-checker": "^2.0",
         "web-token/jwt-core": "^2.0",
+        "web-token/jwt-encryption": "^2.0",
         "web-token/jwt-key-mgmt": "^2.0.7",
         "web-token/jwt-signature": "^2.0",
         "web-token/jwt-signature-algorithm-rsa": "^2.0"
@@ -41,6 +47,7 @@
             "src/functions/base64url_encode.php",
             "src/functions/check_server_response.php",
             "src/functions/derived_key.php",
+            "src/functions/get_endpoint_uri.php",
             "src/functions/jose_secret_key.php",
             "src/functions/normalize_webfinger.php",
             "src/functions/parse_callback_params.php",
@@ -63,8 +70,8 @@
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^0.11.8",
         "phpstan/phpstan-deprecation-rules": "^0.11.2",
+        "phpstan/phpstan-strict-rules": "^0.11.1",
         "phpunit/phpunit": "^8.2",
-        "web-token/jwt-encryption": "^2.0",
         "web-token/jwt-encryption-algorithm-aescbc": "^2.0",
         "web-token/jwt-encryption-algorithm-aesgcm": "^2.0",
         "web-token/jwt-encryption-algorithm-aesgcmkw": "^2.0",

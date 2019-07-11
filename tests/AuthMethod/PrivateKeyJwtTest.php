@@ -4,27 +4,30 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClientTest\AuthMethod;
 
+use function http_build_query;
 use Jose\Component\Core\JWK;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Signature\JWS;
 use Jose\Component\Signature\JWSBuilder;
-use Jose\Component\Signature\Serializer\Serializer;
+use Jose\Component\Signature\Serializer\JWSSerializer;
+use function json_decode;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
+use function time;
 use TMV\OpenIdClient\AuthMethod\PrivateKeyJwt;
-use TMV\OpenIdClient\ClientInterface;
-use TMV\OpenIdClient\IssuerInterface;
-use TMV\OpenIdClient\Model\ClientMetadataInterface;
-use TMV\OpenIdClient\Model\IssuerMetadataInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
+use TMV\OpenIdClient\Client\Metadata\ClientMetadataInterface;
+use TMV\OpenIdClient\Issuer\IssuerInterface;
+use TMV\OpenIdClient\Issuer\Metadata\IssuerMetadataInterface;
 
 class PrivateKeyJwtTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
         $jwsBuilder = $this->prophesize(JWSBuilder::class);
-        $serializer = $this->prophesize(Serializer::class);
+        $serializer = $this->prophesize(JWSSerializer::class);
 
         $auth = new PrivateKeyJwt(
             $jwsBuilder->reveal(),
@@ -32,7 +35,7 @@ class PrivateKeyJwtTest extends TestCase
             null,
             60
         );
-        $this->assertSame('private_key_jwt', $auth->getSupportedMethod());
+        static::assertSame('private_key_jwt', $auth->getSupportedMethod());
     }
 
     public function createRequestProvider(): array
@@ -51,7 +54,7 @@ class PrivateKeyJwtTest extends TestCase
     public function testCreateRequest(bool $jwkAsDependency = false): void
     {
         $jwsBuilder = $this->prophesize(JWSBuilder::class);
-        $serializer = $this->prophesize(Serializer::class);
+        $serializer = $this->prophesize(JWSSerializer::class);
 
         $jwk = $this->prophesize(JWK::class);
         $jwk->get('alg')->willReturn('ALG');
@@ -72,7 +75,7 @@ class PrivateKeyJwtTest extends TestCase
         $jwks = $this->prophesize(JWKSet::class);
 
         if (! $jwkAsDependency) {
-            $client->getJWKS()->willReturn($jwks->reveal());
+            $client->getJwks()->willReturn($jwks->reveal());
             $jwks->selectKey('sig')
                 ->willReturn($jwk->reveal());
         }
@@ -91,24 +94,24 @@ class PrivateKeyJwtTest extends TestCase
 
         $jwsBuilder->create()->shouldBeCalled()->willReturn($jwsBuilder2->reveal());
         $jwsBuilder2->withPayload(Argument::that(function (string $payload) {
-            $decoded = \json_decode($payload, true);
+            $decoded = json_decode($payload, true);
 
-            $this->assertIsArray($decoded);
+            static::assertIsArray($decoded);
 
-            $this->assertArrayHasKey('iss', $decoded);
-            $this->assertArrayHasKey('sub', $decoded);
-            $this->assertArrayHasKey('aud', $decoded);
-            $this->assertArrayHasKey('iat', $decoded);
-            $this->assertArrayHasKey('exp', $decoded);
-            $this->assertArrayHasKey('jti', $decoded);
+            static::assertArrayHasKey('iss', $decoded);
+            static::assertArrayHasKey('sub', $decoded);
+            static::assertArrayHasKey('aud', $decoded);
+            static::assertArrayHasKey('iat', $decoded);
+            static::assertArrayHasKey('exp', $decoded);
+            static::assertArrayHasKey('jti', $decoded);
 
-            $this->assertSame('bar', $decoded['foo'] ?? null);
-            $this->assertSame('foo', $decoded['iss'] ?? null);
-            $this->assertSame('foo', $decoded['sub'] ?? null);
-            $this->assertSame('issuer', $decoded['aud'] ?? null);
-            $this->assertLessThanOrEqual(\time(), $decoded['iat']);
-            $this->assertLessThanOrEqual(\time() + 60, $decoded['exp']);
-            $this->assertGreaterThan(\time(), $decoded['exp']);
+            static::assertSame('bar', $decoded['foo'] ?? null);
+            static::assertSame('foo', $decoded['iss'] ?? null);
+            static::assertSame('foo', $decoded['sub'] ?? null);
+            static::assertSame('issuer', $decoded['aud'] ?? null);
+            static::assertLessThanOrEqual(time(), $decoded['iat']);
+            static::assertLessThanOrEqual(time() + 60, $decoded['exp']);
+            static::assertGreaterThan(time(), $decoded['exp']);
 
             return true;
         }))
@@ -128,7 +131,7 @@ class PrivateKeyJwtTest extends TestCase
             ->shouldBeCalled()
             ->willReturn('assertion');
 
-        $body = \http_build_query([
+        $body = http_build_query([
             'client_id' => 'foo',
             'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
             'client_assertion' => 'assertion',
@@ -144,6 +147,6 @@ class PrivateKeyJwtTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($request->reveal(), $result);
+        static::assertSame($request->reveal(), $result);
     }
 }

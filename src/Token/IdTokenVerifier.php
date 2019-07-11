@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\Token;
 
+use function array_filter;
+use function explode;
+use function is_array;
 use Jose\Component\Checker\AudienceChecker;
 use Jose\Component\Checker\ClaimCheckerManager;
 use Jose\Component\Checker\ExpirationTimeChecker;
@@ -11,23 +14,22 @@ use Jose\Component\Checker\IssuedAtChecker;
 use Jose\Component\Checker\IssuerChecker;
 use Jose\Component\Checker\NotBeforeChecker;
 use Jose\Component\Core\AlgorithmManager;
-use Jose\Component\Core\JWK;
-use Jose\Component\Core\JWKSet;
 use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\CompactSerializer;
+use function json_decode;
+use function sprintf;
+use function str_replace;
 use function TMV\OpenIdClient\base64url_decode;
 use TMV\OpenIdClient\ClaimChecker\AuthTimeChecker;
 use TMV\OpenIdClient\ClaimChecker\AzpChecker;
 use TMV\OpenIdClient\ClaimChecker\NonceChecker;
-use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\RuntimeException;
-use TMV\OpenIdClient\IssuerInterface;
-use function TMV\OpenIdClient\jose_secret_key;
-use TMV\OpenIdClient\Model\AuthSessionInterface;
+use TMV\OpenIdClient\Session\AuthSessionInterface;
 
-class IdTokenVerifier implements IdTokenVerifierInterface
+class IdTokenVerifier extends AbstractTokenVerifier implements IdTokenVerifierInterface
 {
     /** @var JWSVerifier */
     private $jwsVerifier;
@@ -36,7 +38,7 @@ class IdTokenVerifier implements IdTokenVerifierInterface
     private $aadIssValidation;
 
     /** @var int */
-    private $clockTolerance = 0;
+    private $clockTolerance;
 
     public function __construct(
         ?JWSVerifier $jwsVerifier = null,
@@ -78,29 +80,29 @@ class IdTokenVerifier implements IdTokenVerifierInterface
             ? $metadata->getUserinfoSignedResponseAlg()
             : $metadata->getIdTokenSignedResponseAlg();
 
-        if (! $expectedAlg) {
+        if (null === $expectedAlg) {
             throw new RuntimeException('Unable to verify id_token without an alg value');
         }
 
-        $header = \json_decode(base64url_decode(\explode('.', $idToken)[0] ?? '{}'), true);
+        $header = json_decode(base64url_decode(explode('.', $idToken)[0] ?? '{}'), true);
 
         if ($expectedAlg !== ($header['alg'] ?? '')) {
-            throw new RuntimeException(\sprintf('Unexpected JWS alg received, expected %s, got: %s', $expectedAlg, $header['alg'] ?? ''));
+            throw new RuntimeException(sprintf('Unexpected JWS alg received, expected %s, got: %s', $expectedAlg, $header['alg'] ?? ''));
         }
 
-        $payload = \json_decode(base64url_decode(\explode('.', $idToken)[1] ?? '{}'), true);
+        $payload = json_decode(base64url_decode(explode('.', $idToken)[1] ?? '{}'), true);
 
-        if (! \is_array($payload)) {
+        if (! is_array($payload)) {
             throw new InvalidArgumentException('Unable to decode token payload');
         }
 
         $expectedIssuer = $client->getIssuer()->getMetadata()->getIssuer();
 
         if ($this->aadIssValidation) {
-            $expectedIssuer = \str_replace('{tenantid}', $payload['tid'] ?? '', $expectedIssuer);
+            $expectedIssuer = str_replace('{tenantid}', $payload['tid'] ?? '', $expectedIssuer);
         }
 
-        $nonce = $authSession ? $authSession->getNonce() : null;
+        $nonce = null !== $authSession ? $authSession->getNonce() : null;
 
         $claimCheckers = [
             new IssuerChecker([$expectedIssuer]),
@@ -109,8 +111,8 @@ class IdTokenVerifier implements IdTokenVerifierInterface
             new ExpirationTimeChecker($this->clockTolerance),
             new NotBeforeChecker($this->clockTolerance),
             new AzpChecker($metadata->getClientId()),
-            $maxAge ? new AuthTimeChecker($maxAge, $this->clockTolerance) : null,
-            $nonce ? new NonceChecker($nonce) : null,
+            null !== $maxAge ? new AuthTimeChecker($maxAge, $this->clockTolerance) : null,
+            null !== $nonce ? new NonceChecker($nonce) : null,
         ];
 
         $requiredClaims = [];
@@ -119,13 +121,13 @@ class IdTokenVerifier implements IdTokenVerifierInterface
             $requiredClaims = ['iss', 'sub', 'aud', 'exp', 'iat'];
         }
 
-        if ($maxAge || (null !== $maxAge && $metadata->get('require_auth_time'))) {
+        if ((int) $maxAge > 0 || (null !== $maxAge && null !== $metadata->get('require_auth_time'))) {
             $requiredClaims[] = 'auth_time';
         }
 
-        $claimCheckerManager = new ClaimCheckerManager(\array_filter($claimCheckers));
+        $claimCheckerManager = new ClaimCheckerManager(array_filter($claimCheckers));
 
-        $claimCheckerManager->check($payload, \array_filter($requiredClaims));
+        $claimCheckerManager->check($payload, array_filter($requiredClaims));
 
         if ('none' === $expectedAlg) {
             return $payload;
@@ -144,44 +146,5 @@ class IdTokenVerifier implements IdTokenVerifierInterface
         }
 
         return $payload;
-    }
-
-    private function getSigningJWKSet(ClientInterface $client, string $expectedAlg, ?string $kid = null): JWKSet
-    {
-        $metadata = $client->getMetadata();
-        $issuer = $client->getIssuer();
-
-        if (0 !== \strpos($expectedAlg, 'HS')) {
-            // not symmetric key
-            return $kid
-                ? new JWKSet([$this->getIssuerJWKFromKid($issuer, $kid)])
-                : $issuer->getJwks();
-        }
-
-        $clientSecret = $metadata->getClientSecret();
-
-        if (! $clientSecret) {
-            throw new RuntimeException('Unable to verify token without client_secret');
-        }
-
-        return new JWKSet([jose_secret_key($clientSecret)]);
-    }
-
-    private function getIssuerJWKFromKid(IssuerInterface $issuer, string $kid): JWK
-    {
-        $jwks = $issuer->getJwks();
-
-        $jwk = $jwks->selectKey('sig', null, ['kid' => $kid]);
-
-        if (! $jwk) {
-            $issuer->updateJwks();
-            $jwk = $issuer->getJwks()->selectKey('sig', null, ['kid' => $kid]);
-        }
-
-        if (! $jwk) {
-            throw new RuntimeException('Unable to find the jwk with the provided kid: ' . $kid);
-        }
-
-        return $jwk;
     }
 }

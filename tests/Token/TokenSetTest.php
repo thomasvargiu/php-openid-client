@@ -12,72 +12,72 @@ class TokenSetTest extends TestCase
     public function testGetTokenType(): void
     {
         $authResponse = new TokenSet();
-        $this->assertNull($authResponse->getTokenType());
+        static::assertNull($authResponse->getTokenType());
 
         $authResponse = TokenSet::fromParams(['token_type' => 'foo']);
-        $this->assertSame('foo', $authResponse->getTokenType());
+        static::assertSame('foo', $authResponse->getTokenType());
     }
 
     public function testGetCode(): void
     {
         $authResponse = new TokenSet();
-        $this->assertNull($authResponse->getCode());
+        static::assertNull($authResponse->getCode());
 
         $authResponse = TokenSet::fromParams(['code' => 'foo']);
-        $this->assertSame('foo', $authResponse->getCode());
+        static::assertSame('foo', $authResponse->getCode());
     }
 
     public function testGetExpiresIn(): void
     {
         $authResponse = new TokenSet();
-        $this->assertNull($authResponse->getExpiresIn());
+        static::assertNull($authResponse->getExpiresIn());
 
         $authResponse = TokenSet::fromParams(['expires_in' => '3']);
-        $this->assertSame(3, $authResponse->getExpiresIn());
+        static::assertSame(3, $authResponse->getExpiresIn());
     }
 
     public function testGetIdToken(): void
     {
         $authResponse = new TokenSet();
-        $this->assertNull($authResponse->getIdToken());
+        static::assertNull($authResponse->getIdToken());
 
         $authResponse = TokenSet::fromParams(['id_token' => 'foo']);
-        $this->assertSame('foo', $authResponse->getIdToken());
+        static::assertSame('foo', $authResponse->getIdToken());
     }
 
     public function testGetRefreshToken(): void
     {
         $authResponse = new TokenSet();
-        $this->assertNull($authResponse->getRefreshToken());
+        static::assertNull($authResponse->getRefreshToken());
 
         $authResponse = TokenSet::fromParams(['refresh_token' => 'foo']);
-        $this->assertSame('foo', $authResponse->getRefreshToken());
+        static::assertSame('foo', $authResponse->getRefreshToken());
     }
 
     public function testGetCodeVerifier(): void
     {
         $authResponse = new TokenSet();
-        $this->assertNull($authResponse->getCodeVerifier());
+        static::assertNull($authResponse->getCodeVerifier());
 
         $authResponse = TokenSet::fromParams(['code_verifier' => 'foo']);
-        $this->assertSame('foo', $authResponse->getCodeVerifier());
+        static::assertSame('foo', $authResponse->getCodeVerifier());
     }
 
     public function testGetState(): void
     {
         $authResponse = new TokenSet();
-        $this->assertNull($authResponse->getState());
+        static::assertNull($authResponse->getState());
 
         $authResponse = TokenSet::fromParams(['state' => 'foo']);
-        $this->assertSame('foo', $authResponse->getState());
+        static::assertSame('foo', $authResponse->getState());
     }
 
     public function testGetAccessToken(): void
     {
         $authResponse = new TokenSet();
-        $this->assertNull($authResponse->getAccessToken());
+        static::assertNull($authResponse->getAccessToken());
 
         $authResponse = TokenSet::fromParams(['access_token' => 'foo']);
-        $this->assertSame('foo', $authResponse->getAccessToken());
+        static::assertSame('foo', $authResponse->getAccessToken());
     }
 }

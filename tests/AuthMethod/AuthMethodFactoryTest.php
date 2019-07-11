@@ -7,6 +7,7 @@ namespace TMV\OpenIdClientTest\AuthMethod;
 use PHPUnit\Framework\TestCase;
 use TMV\OpenIdClient\AuthMethod\AuthMethodFactory;
 use TMV\OpenIdClient\AuthMethod\AuthMethodInterface;
+use TMV\OpenIdClient\Exception\InvalidArgumentException;
 
 class AuthMethodFactoryTest extends TestCase
 {
@@ -23,8 +24,17 @@ class AuthMethodFactoryTest extends TestCase
             $authMethod2->reveal(),
         ]);
 
-        $this->assertCount(2, $factory->all());
-        $this->assertSame($authMethod1->reveal(), $factory->create('foo'));
-        $this->assertSame($authMethod2->reveal(), $factory->create('bar'));
+        static::assertCount(2, $factory->all());
+        static::assertSame($authMethod1->reveal(), $factory->create('foo'));
+        static::assertSame($authMethod2->reveal(), $factory->create('bar'));
+    }
+
+    public function testCreateWithUnknownAuthMethod(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $factory = new AuthMethodFactory();
+
+        $factory->create('foo');
     }
 }

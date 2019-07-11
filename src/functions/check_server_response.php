@@ -13,11 +13,11 @@ use TMV\OpenIdClient\Exception\OAuth2Exception;
  */
 function check_server_response(ResponseInterface $response, ?int $expectedCode = null): void
 {
-    if (! $expectedCode && $response->getStatusCode() >= 400) {
+    if (null === $expectedCode && $response->getStatusCode() >= 400) {
         throw OAuth2Exception::fromResponse($response);
     }
 
-    if ($expectedCode && $expectedCode !== $response->getStatusCode()) {
+    if (null !== $expectedCode && $expectedCode !== $response->getStatusCode()) {
         throw OAuth2Exception::fromResponse($response);
     }
 }
