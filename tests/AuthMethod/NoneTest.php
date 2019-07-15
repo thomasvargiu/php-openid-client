@@ -8,14 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\None;
-use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
 
 class NoneTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
         $auth = new None();
-        $this->assertSame('none', $auth->getSupportedMethod());
+        static::assertSame('none', $auth->getSupportedMethod());
     }
 
     public function testCreateRequest(): void
@@ -36,6 +36,6 @@ class NoneTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($request->reveal(), $result);
+        static::assertSame($request->reveal(), $result);
     }
 }

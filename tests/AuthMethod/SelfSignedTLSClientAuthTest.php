@@ -8,15 +8,15 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\SelfSignedTLSClientAuth;
-use TMV\OpenIdClient\ClientInterface;
-use TMV\OpenIdClient\Model\ClientMetadataInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
+use TMV\OpenIdClient\Client\Metadata\ClientMetadataInterface;
 
 class SelfSignedTLSClientAuthTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
         $auth = new SelfSignedTLSClientAuth();
-        $this->assertSame('self_signed_tls_client_auth', $auth->getSupportedMethod());
+        static::assertSame('self_signed_tls_client_auth', $auth->getSupportedMethod());
     }
 
     public function testCreateRequest(): void
@@ -42,6 +42,6 @@ class SelfSignedTLSClientAuthTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($request->reveal(), $result);
+        static::assertSame($request->reveal(), $result);
     }
 }

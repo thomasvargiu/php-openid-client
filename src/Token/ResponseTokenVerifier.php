@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\Token;
 
+use function array_filter;
+use function explode;
+use function is_array;
 use Jose\Component\Checker\AudienceChecker;
 use Jose\Component\Checker\ClaimCheckerManager;
 use Jose\Component\Checker\ExpirationTimeChecker;
@@ -11,21 +14,22 @@ use Jose\Component\Checker\IssuedAtChecker;
 use Jose\Component\Checker\IssuerChecker;
 use Jose\Component\Checker\NotBeforeChecker;
 use Jose\Component\Core\AlgorithmManager;
-use Jose\Component\Core\JWKSet;
 use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\CompactSerializer;
+use function json_decode;
+use function sprintf;
+use function str_replace;
 use function TMV\OpenIdClient\base64url_decode;
 use TMV\OpenIdClient\ClaimChecker\AzpChecker;
-use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\RuntimeException;
-use function TMV\OpenIdClient\jose_secret_key;
 
-class ResponseTokenVerifier implements ResponseTokenVerifierInterface
+class ResponseTokenVerifier extends AbstractTokenVerifier implements ResponseTokenVerifierInterface
 {
-    /** @var AlgorithmManager */
-    private $algorithmManager;
+    /** @var JWSVerifier */
+    private $jwsVerifier;
 
     /** @var bool */
     private $aadIssValidation;
@@ -36,16 +40,16 @@ class ResponseTokenVerifier implements ResponseTokenVerifierInterface
     /**
      * IdTokenVerifier constructor.
      *
-     * @param null|AlgorithmManager $algorithmManager
+     * @param null|JWSVerifier $jwsVerifier
      * @param bool $aadIssValidation
      * @param int $clockTolerance
      */
     public function __construct(
-        ?AlgorithmManager $algorithmManager = null,
+        ?JWSVerifier $jwsVerifier = null,
         bool $aadIssValidation = false,
         int $clockTolerance = 0
     ) {
-        $this->algorithmManager = $algorithmManager ?: new AlgorithmManager([new RS256()]);
+        $this->jwsVerifier = $jwsVerifier ?: new JWSVerifier(new AlgorithmManager([new RS256()]));
         $this->aadIssValidation = $aadIssValidation;
         $this->clockTolerance = $clockTolerance;
     }
@@ -55,26 +59,26 @@ class ResponseTokenVerifier implements ResponseTokenVerifierInterface
         $metadata = $client->getMetadata();
         $expectedAlg = $metadata->getAuthorizationSignedResponseAlg();
 
-        if (! $expectedAlg) {
+        if (null === $expectedAlg) {
             throw new RuntimeException('No authorization_signed_response_alg defined');
         }
 
-        $header = \json_decode(base64url_decode(\explode('.', $token)[0] ?? '{}'), true);
+        $header = json_decode(base64url_decode(explode('.', $token)[0] ?? '{}'), true);
 
         if ($expectedAlg !== ($header['alg'] ?? '')) {
-            throw new RuntimeException(\sprintf('Unexpected JWE alg received, expected %s, got: %s', $expectedAlg, $header['alg'] ?? ''));
+            throw new RuntimeException(sprintf('Unexpected JWE alg received, expected %s, got: %s', $expectedAlg, $header['alg'] ?? ''));
         }
 
-        $payload = \json_decode(base64url_decode(\explode('.', $token)[1] ?? '{}'), true);
+        $payload = json_decode(base64url_decode(explode('.', $token)[1] ?? '{}'), true);
 
-        if (! \is_array($payload)) {
+        if (! is_array($payload)) {
             throw new InvalidArgumentException('Unable to decode token payload');
         }
 
         $expectedIssuer = $client->getIssuer()->getMetadata()->getIssuer();
 
         if ($this->aadIssValidation) {
-            $expectedIssuer = \str_replace('{tenantid}', $payload['tid'] ?? '', $expectedIssuer);
+            $expectedIssuer = str_replace('{tenantid}', $payload['tid'] ?? '', $expectedIssuer);
         }
 
         $claimCheckers = [
@@ -88,30 +92,23 @@ class ResponseTokenVerifier implements ResponseTokenVerifierInterface
 
         $requiredClaims = ['iss', 'sub', 'aud', 'exp', 'iat'];
 
-        $claimCheckerManager = new ClaimCheckerManager(\array_filter($claimCheckers));
+        $claimCheckerManager = new ClaimCheckerManager(array_filter($claimCheckers));
 
-        $claimCheckerManager->check($payload, \array_filter($requiredClaims));
+        $claimCheckerManager->check($payload, array_filter($requiredClaims));
+
+        if ('none' === $expectedAlg) {
+            return $payload;
+        }
 
         $serializer = new CompactSerializer();
         $jws = $serializer->unserialize($token);
 
-        $jwsVerifier = new JWSVerifier(
-            $this->algorithmManager
-        );
+        /** @var string|null $kid */
+        $kid = $header['kid'] ?? null;
 
-        if (0 === \strpos($expectedAlg, 'HS')) {
-            $clientSecret = $metadata->getClientSecret();
+        $jwks = $this->getSigningJWKSet($client, $expectedAlg, $kid);
 
-            if (! $clientSecret) {
-                throw new RuntimeException('Unable to verify token without client_secret');
-            }
-
-            $jwks = new JWKSet([jose_secret_key($clientSecret)]);
-        } else {
-            $jwks = $client->getIssuer()->getJwks();
-        }
-
-        if (! $jwsVerifier->verifyWithKeySet($jws, $jwks, 0)) {
+        if (! $this->jwsVerifier->verifyWithKeySet($jws, $jwks, 0)) {
             throw new InvalidArgumentException('Failed to validate JWT signature');
         }
 

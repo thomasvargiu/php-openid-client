@@ -23,4 +23,6 @@ interface TokenSetInterface
     public function getState(): ?string;
 
     public function claims(): array;
+
+    public function withIdToken(string $idToken): self;
 }

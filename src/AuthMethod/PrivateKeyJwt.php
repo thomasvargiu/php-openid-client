@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\AuthMethod;
 
+use function array_merge;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWK;
 use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\CompactSerializer;
-use Jose\Component\Signature\Serializer\Serializer;
+use Jose\Component\Signature\Serializer\JWSSerializer;
+use function json_encode;
+use function random_bytes;
+use function time;
 use function TMV\OpenIdClient\base64url_encode;
-use TMV\OpenIdClient\ClientInterface as OpenIDClient;
+use TMV\OpenIdClient\Client\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\RuntimeException;
 
 final class PrivateKeyJwt extends AbstractJwtAuth
@@ -19,7 +23,7 @@ final class PrivateKeyJwt extends AbstractJwtAuth
     /** @var JWSBuilder */
     private $jwsBuilder;
 
-    /** @var Serializer */
+    /** @var JWSSerializer */
     private $jwsSerializer;
 
     /** @var null|JWK */
@@ -32,13 +36,13 @@ final class PrivateKeyJwt extends AbstractJwtAuth
      * PrivateKeyJwt constructor.
      *
      * @param null|JWSBuilder $jwsBuilder
-     * @param null|Serializer $serializer
+     * @param null|JWSSerializer $serializer
      * @param null|JWK $jwk
      * @param int $tokenTTL
      */
     public function __construct(
         ?JWSBuilder $jwsBuilder = null,
-        ?Serializer $serializer = null,
+        ?JWSSerializer $serializer = null,
         ?JWK $jwk = null,
         int $tokenTTL = 60
     ) {
@@ -60,17 +64,17 @@ final class PrivateKeyJwt extends AbstractJwtAuth
 
         $clientId = $client->getMetadata()->getClientId();
 
-        $jwk = $this->jwk ?: $client->getJWKS()->selectKey('sig');
+        $jwk = $this->jwk ?: $client->getJwks()->selectKey('sig');
 
-        if (! $jwk) {
+        if (null === $jwk) {
             throw new RuntimeException('Unable to get a client signature jwk');
         }
 
-        $time = \time();
-        $jti = base64url_encode(\random_bytes(32));
+        $time = time();
+        $jti = base64url_encode(random_bytes(32));
 
         /** @var string $payload */
-        $payload = \json_encode(\array_merge(
+        $payload = json_encode(array_merge(
             $claims,
             [
                 'iss' => $clientId,

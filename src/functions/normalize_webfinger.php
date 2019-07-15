@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient;
 
+use function array_pop;
+use function explode;
+use function preg_match;
+use function preg_replace;
+use function strpos;
+use function substr;
+
 /**
  * @param string $input
  *
@@ -12,31 +19,31 @@ namespace TMV\OpenIdClient;
 function normalize_webfinger(string $input): string
 {
     $hasScheme = static function (string $resource): bool {
-        if (false !== \strpos($resource, '://')) {
+        if (false !== strpos($resource, '://')) {
             return true;
         }
 
-        $authority = \explode('#', (string) \preg_replace('/(\/|\?)/', '#', $resource))[0];
+        $authority = explode('#', (string) preg_replace('/(\/|\?)/', '#', $resource))[0];
 
-        if (false === ($index = \strpos($authority, ':'))) {
+        if (false === ($index = strpos($authority, ':'))) {
             return false;
         }
 
-        $hostOrPort = \substr($resource, $index + 1);
+        $hostOrPort = substr($resource, $index + 1);
 
-        return ! \preg_match('/^\d+$/', $hostOrPort);
+        return ! (bool) preg_match('/^\d+$/', $hostOrPort);
     };
 
     $acctSchemeAssumed = static function (string $input): bool {
-        if (false === \strpos($input, '@')) {
+        if (false === strpos($input, '@')) {
             return false;
         }
 
-        $parts = \explode('@', $input);
+        $parts = explode('@', $input);
         /** @var string $host */
-        $host = \array_pop($parts);
+        $host = array_pop($parts);
 
-        return ! \preg_match('/[:\/?]+/', $host);
+        return ! (bool) preg_match('/[:\/?]+/', $host);
     };
 
     if ($hasScheme($input)) {
@@ -47,5 +54,5 @@ function normalize_webfinger(string $input): string
         $output = 'https://' . $input;
     }
 
-    return \explode('#', $output)[0];
+    return explode('#', $output)[0];
 }

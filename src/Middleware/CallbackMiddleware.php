@@ -8,10 +8,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
 use TMV\OpenIdClient\Exception\LogicException;
-use TMV\OpenIdClient\Model\AuthSessionInterface;
 use TMV\OpenIdClient\Service\AuthorizationService;
+use TMV\OpenIdClient\Session\AuthSessionInterface;
 use TMV\OpenIdClient\Token\TokenSetInterface;
 
 class CallbackMiddleware implements MiddlewareInterface
@@ -49,7 +49,7 @@ class CallbackMiddleware implements MiddlewareInterface
             throw new LogicException('No OpenID client provided');
         }
 
-        if ($authSession && ! $client instanceof AuthSessionInterface) {
+        if (null !== $authSession && ! $client instanceof AuthSessionInterface) {
             throw new LogicException('Invalid auth session provided in attribute ' . AuthSessionInterface::class);
         }
 

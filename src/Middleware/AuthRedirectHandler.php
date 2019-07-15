@@ -9,13 +9,14 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use function random_bytes;
 use TMV\OpenIdClient\Authorization\AuthRequestInterface;
 use function TMV\OpenIdClient\base64url_encode;
-use TMV\OpenIdClient\ClientInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
 use TMV\OpenIdClient\Exception\LogicException;
 use TMV\OpenIdClient\Exception\RuntimeException;
-use TMV\OpenIdClient\Model\AuthSessionInterface;
 use TMV\OpenIdClient\Service\AuthorizationService;
+use TMV\OpenIdClient\Session\AuthSessionInterface;
 
 class AuthRedirectHandler implements RequestHandlerInterface
 {
@@ -54,8 +55,8 @@ class AuthRedirectHandler implements RequestHandlerInterface
         $authSession = $request->getAttribute(AuthSessionInterface::class);
 
         if ($authSession instanceof AuthSessionInterface) {
-            $state = $authRequest->getState() ?: base64url_encode(\random_bytes($this->randomBytes));
-            $nonce = $authRequest->getNonce() ?: base64url_encode(\random_bytes($this->randomBytes));
+            $state = $authRequest->getState() ?: base64url_encode(random_bytes($this->randomBytes));
+            $nonce = $authRequest->getNonce() ?: base64url_encode(random_bytes($this->randomBytes));
 
             $authSession->setState($state);
             $authSession->setNonce($nonce);

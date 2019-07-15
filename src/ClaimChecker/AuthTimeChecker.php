@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\ClaimChecker;
 
+use function is_int;
 use Jose\Component\Checker\ClaimChecker;
 use Jose\Component\Checker\InvalidClaimException;
+use function time;
 
 final class AuthTimeChecker implements ClaimChecker
 {
@@ -28,11 +30,11 @@ final class AuthTimeChecker implements ClaimChecker
      */
     public function checkClaim($value): void
     {
-        if (! \is_int($value)) {
+        if (! is_int($value)) {
             throw new InvalidClaimException('"auth_time" must be an integer.', self::CLAIM_NAME, $value);
         }
 
-        if ($value + $this->maxAge < \time() - $this->allowedTimeDrift) {
+        if ($value + $this->maxAge < time() - $this->allowedTimeDrift) {
             throw new InvalidClaimException('Too much time has elapsed since the last End-User authentication.', self::CLAIM_NAME, $value);
         }
     }

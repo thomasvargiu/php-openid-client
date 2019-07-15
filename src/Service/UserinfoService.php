@@ -6,10 +6,14 @@ namespace TMV\OpenIdClient\Service;
 
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
+use function http_build_query;
+use function is_array;
+use function json_decode;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
-use TMV\OpenIdClient\ClientInterface as OpenIDClient;
+use function sprintf;
+use TMV\OpenIdClient\Client\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\OAuth2Exception;
 use TMV\OpenIdClient\Exception\RuntimeException;
@@ -33,14 +37,6 @@ class UserinfoService
     /** @var TokenDecrypterInterface */
     private $idTokenDecrypter;
 
-    /**
-     * UserinfoService constructor.
-     *
-     * @param null|ClientInterface $client
-     * @param IdTokenVerifierInterface|null $idTokenVerifier
-     * @param TokenDecrypterInterface|null $idTokenDecrypter
-     * @param null|RequestFactoryInterface $requestFactory
-     */
     public function __construct(
         ?ClientInterface $client = null,
         ?IdTokenVerifierInterface $idTokenVerifier = null,
@@ -57,7 +53,7 @@ class UserinfoService
     {
         $accessToken = $tokenSet->getAccessToken();
 
-        if (! $accessToken) {
+        if (null === $accessToken) {
             throw new RuntimeException('Unable to get an access token from the token set');
         }
 
@@ -72,19 +68,19 @@ class UserinfoService
             $endpointUri = $issuerMetadata->getMtlsEndpointAliases()['userinfo_endpoint'] ?? $endpointUri;
         }
 
-        if (! $endpointUri) {
+        if (null === $endpointUri) {
             throw new InvalidArgumentException('Invalid issuer userinfo endpoint');
         }
 
-        $expectJwt = $clientMetadata->getUserinfoSignedResponseAlg()
-            || $clientMetadata->getUserinfoEncryptedResponseAlg()
-            || $clientMetadata->getUserinfoEncryptedResponseEnc();
+        $expectJwt = null !== $clientMetadata->getUserinfoSignedResponseAlg()
+            || null !== $clientMetadata->getUserinfoEncryptedResponseAlg()
+            || null !== $clientMetadata->getUserinfoEncryptedResponseEnc();
 
         if ($useBody) {
             $request = $this->requestFactory->createRequest('POST', $endpointUri)
                 ->withHeader('accept', $expectJwt ? 'application/jwt' : 'application/json')
                 ->withHeader('content-type', 'application/x-www-form-urlencoded');
-            $request->getBody()->write(\http_build_query(['access_token' => $accessToken]));
+            $request->getBody()->write(http_build_query(['access_token' => $accessToken]));
         } else {
             $request = $this->requestFactory->createRequest('GET', $endpointUri)
                 ->withHeader('accept', $expectJwt ? 'application/jwt' : 'application/json')
@@ -105,16 +101,16 @@ class UserinfoService
             $token = $this->idTokenDecrypter->decryptToken($client, (string) $response->getBody(), 'userinfo');
             $payload = $this->idTokenVerifier->validateUserinfoToken($client, $token);
         } else {
-            $payload = \json_decode((string) $response->getBody(), true);
+            $payload = json_decode((string) $response->getBody(), true);
         }
 
-        if (! \is_array($payload)) {
+        if (! is_array($payload)) {
             throw new RuntimeException('Unable to parse userinfo claims');
         }
 
         $idToken = $tokenSet->getIdToken();
 
-        if (! $idToken) {
+        if (null === $idToken) {
             return $payload;
         }
 
@@ -127,7 +123,7 @@ class UserinfoService
 
         if ($expectedSub !== ($payload['sub'] ?? null)) {
             throw new RuntimeException(
-                \sprintf('Userinfo sub mismatch, expected %s, got: %s', $expectedSub, $payload['sub'] ?? null)
+                sprintf('Userinfo sub mismatch, expected %s, got: %s', $expectedSub, $payload['sub'] ?? null)
             );
         }
 

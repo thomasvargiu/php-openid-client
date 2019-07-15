@@ -8,15 +8,16 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use TMV\OpenIdClient\AuthMethod\ClientSecretPost;
-use TMV\OpenIdClient\ClientInterface;
-use TMV\OpenIdClient\Model\ClientMetadataInterface;
+use TMV\OpenIdClient\Client\ClientInterface;
+use TMV\OpenIdClient\Client\Metadata\ClientMetadataInterface;
+use TMV\OpenIdClient\Exception\InvalidArgumentException;
 
 class ClientSecretPostTest extends TestCase
 {
     public function testGetSupportedMethod(): void
     {
         $auth = new ClientSecretPost();
-        $this->assertSame('client_secret_post', $auth->getSupportedMethod());
+        static::assertSame('client_secret_post', $auth->getSupportedMethod());
     }
 
     public function testCreateRequest(): void
@@ -43,6 +44,26 @@ class ClientSecretPostTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertSame($request->reveal(), $result);
+        static::assertSame($request->reveal(), $result);
+    }
+
+    public function testCreateRequestWithNoClientSecret(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $auth = new ClientSecretPost();
+
+        $request = $this->prophesize(RequestInterface::class);
+        $client = $this->prophesize(ClientInterface::class);
+        $metadata = $this->prophesize(ClientMetadataInterface::class);
+
+        $client->getMetadata()->willReturn($metadata->reveal());
+        $metadata->getClientSecret()->willReturn(null);
+
+        $auth->createRequest(
+            $request->reveal(),
+            $client->reveal(),
+            []
+        );
     }
 }

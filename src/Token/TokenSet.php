@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\Token;
 
+use function array_filter;
+use function array_key_exists;
+use function explode;
+use function is_array;
+use function json_decode;
 use function TMV\OpenIdClient\base64url_decode;
 use TMV\OpenIdClient\Exception\RuntimeException;
 
@@ -42,7 +47,7 @@ class TokenSet implements TokenSetInterface
         $token->accessToken = $data['access_token'] ?? null;
         $token->idToken = $data['id_token'] ?? null;
         $token->refreshToken = $data['refresh_token'] ?? null;
-        $token->expiresIn = \array_key_exists('expires_in', $data) ? (int) $data['expires_in'] : null;
+        $token->expiresIn = array_key_exists('expires_in', $data) ? (int) $data['expires_in'] : null;
         $token->codeVerifier = $data['code_verifier'] ?? null;
 
         return $token;
@@ -112,6 +117,14 @@ class TokenSet implements TokenSetInterface
         return $this->codeVerifier;
     }
 
+    public function withIdToken(string $idToken): TokenSetInterface
+    {
+        $clone = clone $this;
+        $clone->idToken = $idToken;
+
+        return $clone;
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -128,7 +141,7 @@ class TokenSet implements TokenSetInterface
             'code_verifier' => $this->codeVerifier,
         ];
 
-        return \array_filter($data, static function ($value) {
+        return array_filter($data, static function ($value) {
             return null !== $value;
         });
     }
@@ -138,13 +151,13 @@ class TokenSet implements TokenSetInterface
      */
     public function claims(): array
     {
-        if (! $this->idToken) {
+        if (null === $this->idToken) {
             throw new RuntimeException('Unable to retrieve claims without an id_token');
         }
 
-        $data = \json_decode(base64url_decode(\explode('.', $this->idToken)[1] ?? ''), true);
+        $data = json_decode(base64url_decode(explode('.', $this->idToken)[1] ?? ''), true);
 
-        if (! \is_array($data)) {
+        if (! is_array($data)) {
             throw new RuntimeException('Unable to decode id_token payload');
         }
 

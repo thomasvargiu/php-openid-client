@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient;
 
+use function in_array;
+use function parse_str;
 use Psr\Http\Message\ServerRequestInterface;
+use function strtoupper;
 use TMV\OpenIdClient\Exception\RuntimeException;
 
 /**
@@ -14,29 +17,19 @@ use TMV\OpenIdClient\Exception\RuntimeException;
  */
 function parse_callback_params(ServerRequestInterface $serverRequest): array
 {
-    $method = \strtoupper($serverRequest->getMethod());
+    $method = strtoupper($serverRequest->getMethod());
 
-    if ('POST' === $method) {
-        \parse_str((string) $serverRequest->getBody(), $params);
-
-        if (! \is_array($params)) {
-            throw new RuntimeException('Invalid parsed body');
-        }
-
-        return $params;
-    }
-
-    if ('GET' !== $method) {
+    if (! in_array($method, ['GET', 'POST'], true)) {
         throw new RuntimeException('Invalid callback method');
     }
 
-    if ($serverRequest->getUri()->getFragment()) {
-        \parse_str($serverRequest->getUri()->getFragment(), $params);
-
-        return $params;
+    if ('POST' === $method) {
+        parse_str((string) $serverRequest->getBody(), $params);
+    } elseif ('' !== $serverRequest->getUri()->getFragment()) {
+        parse_str($serverRequest->getUri()->getFragment(), $params);
+    } else {
+        parse_str($serverRequest->getUri()->getQuery(), $params);
     }
-
-    \parse_str($serverRequest->getUri()->getQuery(), $params);
 
     return $params;
 }

@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\Authorization;
 
+use function array_diff;
+use function array_diff_key;
+use function array_flip;
+use function array_keys;
+use function array_merge;
+use function count;
+use function implode;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 
-class AuthRequest implements AuthRequestInterface
+final class AuthRequest implements AuthRequestInterface
 {
     /** @var array<string, mixed> */
     private $params;
 
+    /** @var string[] */
     private static $requiredKeys = [
         'client_id',
         'redirect_uri',
     ];
 
-    /**
-     * CodeFlow constructor.
-     *
-     * @param string $clientId
-     * @param string $redirectUri
-     * @param array $params
-     */
     public function __construct(
         string $clientId,
         string $redirectUri,
@@ -34,7 +35,7 @@ class AuthRequest implements AuthRequestInterface
             'response_mode' => 'query',
         ];
         /** @var array<string, mixed> $merged */
-        $merged = \array_merge($defaults, $params);
+        $merged = array_merge($defaults, $params);
 
         $this->params = $merged;
         $this->params['client_id'] = $clientId;
@@ -43,9 +44,9 @@ class AuthRequest implements AuthRequestInterface
 
     public static function fromParams(array $params): self
     {
-        $missingKeys = \array_diff(static::$requiredKeys, \array_keys($params));
-        if (0 !== \count($missingKeys)) {
-            throw new InvalidArgumentException(\implode(', ', $missingKeys) . ' keys not provided');
+        $missingKeys = array_diff(static::$requiredKeys, array_keys($params));
+        if (0 !== count($missingKeys)) {
+            throw new InvalidArgumentException(implode(', ', $missingKeys) . ' keys not provided');
         }
 
         return new self(
@@ -240,10 +241,10 @@ class AuthRequest implements AuthRequestInterface
     public function withParams(array $params): AuthRequestInterface
     {
         $instance = clone $this;
-        $instance->params = \array_merge($instance->params, $params);
+        $instance->params = array_merge($instance->params, $params);
 
-        if (0 === \count(\array_diff_key($instance->params, \array_flip(static::$requiredKeys)))) {
-            throw new InvalidArgumentException(\implode(', ', static::$requiredKeys) . ' should be provided');
+        if (0 === count(array_diff_key($instance->params, array_flip(static::$requiredKeys)))) {
+            throw new InvalidArgumentException(implode(', ', static::$requiredKeys) . ' should be provided');
         }
 
         return $instance;

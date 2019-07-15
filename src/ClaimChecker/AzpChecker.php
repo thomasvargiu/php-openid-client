@@ -6,6 +6,7 @@ namespace TMV\OpenIdClient\ClaimChecker;
 
 use Jose\Component\Checker\ClaimChecker;
 use Jose\Component\Checker\InvalidClaimException;
+use function sprintf;
 
 final class AzpChecker implements ClaimChecker
 {
@@ -25,7 +26,7 @@ final class AzpChecker implements ClaimChecker
     public function checkClaim($value): void
     {
         if ($value !== $this->azp) {
-            throw new InvalidClaimException(\sprintf('azp must be the client_id, expected %s, got: %s', $this->azp, $value), self::CLAIM_NAME, $value);
+            throw new InvalidClaimException(sprintf('azp must be the client_id, expected %s, got: %s', $this->azp, $value), self::CLAIM_NAME, $value);
         }
     }
 

@@ -4,32 +4,49 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\Service;
 
+use function array_filter;
+use function array_key_exists;
+use function array_merge;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
+use function http_build_query;
+use function is_array;
+use function is_string;
+use function json_encode;
 use JsonSerializable;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriFactoryInterface;
-use TMV\OpenIdClient\ClientInterface as OpenIDClient;
+use TMV\OpenIdClient\Client\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 use TMV\OpenIdClient\Exception\OAuth2Exception;
 use TMV\OpenIdClient\Exception\RuntimeException;
-use TMV\OpenIdClient\Model\AuthSessionInterface;
+use function TMV\OpenIdClient\get_endpoint_uri;
 use function TMV\OpenIdClient\parse_callback_params;
 use function TMV\OpenIdClient\parse_metadata_response;
+use TMV\OpenIdClient\Session\AuthSessionInterface;
 use TMV\OpenIdClient\Token\ResponseTokenVerifier;
 use TMV\OpenIdClient\Token\ResponseTokenVerifierInterface;
 use TMV\OpenIdClient\Token\TokenDecrypter;
 use TMV\OpenIdClient\Token\TokenDecrypterInterface;
-use TMV\OpenIdClient\Token\TokenSet;
+use TMV\OpenIdClient\Token\TokenSetFactory;
+use TMV\OpenIdClient\Token\TokenSetFactoryInterface;
 use TMV\OpenIdClient\Token\TokenSetInterface;
 use TMV\OpenIdClient\Token\TokenSetVerifier;
 use TMV\OpenIdClient\Token\TokenSetVerifierInterface;
 
+/**
+ * OAuth 2.0
+ *
+ * @link https://tools.ietf.org/html/rfc6749 RFC 6749
+ */
 class AuthorizationService
 {
+    /** @var TokenSetFactoryInterface */
+    private $tokenSetFactory;
+
     /** @var TokenSetVerifierInterface */
     private $tokenSetVerifier;
 
@@ -48,17 +65,8 @@ class AuthorizationService
     /** @var UriFactoryInterface */
     private $uriFactory;
 
-    /**
-     * AuthorizationService constructor.
-     *
-     * @param TokenSetVerifierInterface|null $tokenSetVerifier
-     * @param ResponseTokenVerifierInterface|null $responseTokenVerifier
-     * @param TokenDecrypterInterface|null $idTokenDecrypter
-     * @param null|ClientInterface $client
-     * @param null|RequestFactoryInterface $requestFactory
-     * @param null|UriFactoryInterface $uriFactory
-     */
     public function __construct(
+        ?TokenSetFactoryInterface $tokenSetFactory = null,
         ?TokenSetVerifierInterface $tokenSetVerifier = null,
         ?ResponseTokenVerifierInterface $responseTokenVerifier = null,
         ?TokenDecrypterInterface $idTokenDecrypter = null,
@@ -66,6 +74,7 @@ class AuthorizationService
         ?RequestFactoryInterface $requestFactory = null,
         ?UriFactoryInterface $uriFactory = null
     ) {
+        $this->tokenSetFactory = $tokenSetFactory ?: new TokenSetFactory();
         $this->tokenSetVerifier = $tokenSetVerifier ?: new TokenSetVerifier();
         $this->responseTokenVerifier = $responseTokenVerifier ?: new ResponseTokenVerifier();
         $this->idTokenDecrypter = $idTokenDecrypter ?: new TokenDecrypter();
@@ -86,33 +95,33 @@ class AuthorizationService
         $issuerMetadata = $client->getIssuer()->getMetadata();
         $endpointUri = $issuerMetadata->getAuthorizationEndpoint();
 
-        $params = \array_merge([
+        $params = array_merge([
             'client_id' => $clientMetadata->getClientId(),
             'scope' => 'openid',
             'response_type' => $clientMetadata->getResponseTypes()[0] ?? 'code',
             'redirect_uri' => $clientMetadata->getRedirectUris()[0] ?? null,
         ], $params);
 
-        $params = \array_filter($params, static function ($value) {
+        $params = array_filter($params, static function ($value) {
             return null !== $value;
         });
 
         foreach ($params as $key => $value) {
             if (null === $value) {
                 unset($params[$key]);
-            } elseif ('claims' === $key && (\is_array($value) || $value instanceof JsonSerializable)) {
-                $params['claims'] = \json_encode($value);
-            } elseif (! \is_string($value)) {
+            } elseif ('claims' === $key && (is_array($value) || $value instanceof JsonSerializable)) {
+                $params['claims'] = json_encode($value);
+            } elseif (! is_string($value)) {
                 $params[$key] = (string) $value;
             }
         }
 
-        if (empty($params['nonce']) && \in_array('id_token', \explode(' ', $params['response_type'] ?? ''), true)) {
+        if (! array_key_exists('nonce', $params) && 'code' !== ($params['response_type'] ?? '')) {
             throw new InvalidArgumentException('nonce MUST be provided for implicit and hybrid flows');
         }
 
         return (string) $this->uriFactory->createUri($endpointUri)
-            ->withQuery(\http_build_query($params));
+            ->withQuery(http_build_query($params));
     }
 
     public function getCallbackParams(ServerRequestInterface $serverRequest, OpenIDClient $client): array
@@ -127,16 +136,16 @@ class AuthorizationService
         ?AuthSessionInterface $authSession = null,
         ?int $maxAge = null
     ): TokenSetInterface {
-        $tokenSet = TokenSet::fromParams($params);
+        $tokenSet = $this->tokenSetFactory->fromArray($params);
 
-        if ($params['id_token'] ?? null) {
-            $params['id_token'] = $this->idTokenDecrypter->decryptToken($client, $params['id_token']);
+        $idToken = $tokenSet->getIdToken();
 
-            $tokenSet = TokenSet::fromParams($params);
+        if (null !== $idToken) {
+            $tokenSet = $tokenSet->withIdToken($this->idTokenDecrypter->decryptToken($client, $idToken));
             $this->tokenSetVerifier->validate($tokenSet, $client, $authSession, true, $maxAge);
         }
 
-        if (! $tokenSet->getCode()) {
+        if (null === $tokenSet->getCode()) {
             return $tokenSet;
         }
 
@@ -153,42 +162,63 @@ class AuthorizationService
     ): TokenSetInterface {
         $code = $tokenSet->getCode();
 
-        if (! $code) {
+        if (null === $code) {
             throw new RuntimeException('Unable to fetch token without a code');
         }
 
-        if (! $redirectUri) {
+        if (null === $redirectUri) {
             $redirectUri = $client->getMetadata()->getRedirectUris()[0] ?? null;
         }
 
-        if (! $redirectUri) {
+        if (null === $redirectUri) {
             throw new InvalidArgumentException('A redirect_uri should be provided');
         }
 
-        $params = $this->grant($client, [
+        $tokenSet = $this->grant($client, [
             'grant_type' => 'authorization_code',
             'code' => $code,
             'redirect_uri' => $redirectUri,
         ]);
 
-        if (! ($params['id_token'] ?? null)) {
-            return TokenSet::fromParams($params);
+        $idToken = $tokenSet->getIdToken();
+
+        if (null === $idToken) {
+            return $tokenSet;
         }
 
-        $params['id_token'] = $this->idTokenDecrypter->decryptToken($client, $params['id_token']);
+        $tokenSet = $tokenSet->withIdToken($this->idTokenDecrypter->decryptToken($client, $idToken));
+        $this->tokenSetVerifier->validate($tokenSet, $client, $authSession, false, $maxAge);
 
-        $authResponse = TokenSet::fromParams($params);
-        $this->tokenSetVerifier->validate($authResponse, $client, $authSession, false, $maxAge);
-
-        return $authResponse;
+        return $tokenSet;
     }
 
-    public function grant(OpenIDClient $client, array $params = []): array
+    public function refresh(OpenIDClient $client, string $refreshToken, array $params = []): TokenSetInterface
+    {
+        $tokenSet = $this->grant($client, array_merge($params, [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $refreshToken,
+        ]));
+
+        $idToken = $tokenSet->getIdToken();
+
+        if (null === $idToken) {
+            return $tokenSet;
+        }
+
+        $tokenSet = $tokenSet->withIdToken($this->idTokenDecrypter->decryptToken($client, $idToken));
+        $this->tokenSetVerifier->validate($tokenSet, $client, null, false);
+
+        return $tokenSet;
+    }
+
+    public function grant(OpenIDClient $client, array $params = []): TokenSetInterface
     {
         $authMethod = $client->getAuthMethodFactory()
             ->create($client->getMetadata()->getTokenEndpointAuthMethod());
 
-        $tokenRequest = $this->requestFactory->createRequest('POST', $client->getTokenEndpoint())
+        $endpointUri = get_endpoint_uri($client, 'token_endpoint');
+
+        $tokenRequest = $this->requestFactory->createRequest('POST', $endpointUri)
             ->withHeader('content-type', 'application/x-www-form-urlencoded');
 
         $tokenRequest = $authMethod->createRequest($tokenRequest, $client, $params);
@@ -199,21 +229,23 @@ class AuthorizationService
             throw new RuntimeException('Unable to get token response', 0, $e);
         }
 
-        return $this->processResponseParams($client, parse_metadata_response($response));
+        $params = $this->processResponseParams($client, parse_metadata_response($response));
+
+        return $this->tokenSetFactory->fromArray($params);
     }
 
     private function processResponseParams(OpenIDClient $client, array $params): array
     {
-        if (\array_key_exists('error', $params)) {
+        if (array_key_exists('error', $params)) {
             throw OAuth2Exception::fromParameters($params);
         }
 
-        if (\array_key_exists('response', $params)) {
+        if (array_key_exists('response', $params)) {
             $decrypted = $this->idTokenDecrypter->decryptToken($client, $params['response']);
             $params = $this->responseTokenVerifier->validate($client, $decrypted);
         }
 
-        if (\array_key_exists('error', $params)) {
+        if (array_key_exists('error', $params)) {
             throw OAuth2Exception::fromParameters($params);
         }
 

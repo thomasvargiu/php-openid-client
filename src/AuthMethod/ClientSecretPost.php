@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace TMV\OpenIdClient\AuthMethod;
 
+use function array_merge;
+use function http_build_query;
 use Psr\Http\Message\RequestInterface;
-use TMV\OpenIdClient\ClientInterface as OpenIDClient;
+use TMV\OpenIdClient\Client\ClientInterface as OpenIDClient;
 use TMV\OpenIdClient\Exception\InvalidArgumentException;
 
 final class ClientSecretPost implements AuthMethodInterface
@@ -20,19 +22,20 @@ final class ClientSecretPost implements AuthMethodInterface
         OpenIDClient $client,
         array $claims
     ): RequestInterface {
-        $clientId = $client->getMetadata()->getClientId();
         $clientSecret = $client->getMetadata()->getClientSecret();
 
-        if (! $clientSecret) {
+        if (null === $clientSecret) {
             throw new InvalidArgumentException($this->getSupportedMethod() . ' cannot be used without client_secret metadata');
         }
 
-        $claims = \array_merge($claims, [
+        $clientId = $client->getMetadata()->getClientId();
+
+        $claims = array_merge($claims, [
             'client_id' => $clientId,
             'client_secret' => $clientSecret,
         ]);
 
-        $request->getBody()->write(\http_build_query($claims));
+        $request->getBody()->write(http_build_query($claims));
 
         return $request;
     }
