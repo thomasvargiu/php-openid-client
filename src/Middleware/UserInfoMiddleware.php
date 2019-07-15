@@ -47,6 +47,6 @@ class UserInfoMiddleware implements MiddlewareInterface
 
         $claims = $this->userinfoService->getUserInfo($client, $tokenSet);
 
-        return $handler->handle($request->withAttribute(static::USERINFO_ATTRIBUTE, $claims));
+        return $handler->handle($request->withAttribute(self::USERINFO_ATTRIBUTE, $claims));
     }
 }

@@ -64,14 +64,14 @@ final class ClientMetadata implements ClientMetadataInterface
             'client_id' => $clientId,
         ];
 
-        $defaults = static::$defaults;
+        $defaults = self::$defaults;
 
         $this->metadata = array_merge($defaults, $claims, $requiredClaims);
     }
 
     public static function fromArray(array $claims): self
     {
-        $missingKeys = array_diff(static::$requiredKeys, array_keys($claims));
+        $missingKeys = array_diff(self::$requiredKeys, array_keys($claims));
         if (0 !== count($missingKeys)) {
             throw new InvalidArgumentException(
                 'Invalid client metadata. Missing keys: ' . implode(', ', $missingKeys)
@@ -182,8 +182,8 @@ final class ClientMetadata implements ClientMetadataInterface
     private function getFilteredClaims(): array
     {
         return array_filter($this->metadata, static function ($value, string $key) {
-            return array_key_exists($key, static::$requiredKeys)
-                || $value !== (static::$defaults[$key] ?? null);
+            return array_key_exists($key, self::$requiredKeys)
+                || $value !== (self::$defaults[$key] ?? null);
         }, ARRAY_FILTER_USE_BOTH);
     }
 

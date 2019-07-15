@@ -44,7 +44,7 @@ final class AuthRequest implements AuthRequestInterface
 
     public static function fromParams(array $params): self
     {
-        $missingKeys = array_diff(static::$requiredKeys, array_keys($params));
+        $missingKeys = array_diff(self::$requiredKeys, array_keys($params));
         if (0 !== count($missingKeys)) {
             throw new InvalidArgumentException(implode(', ', $missingKeys) . ' keys not provided');
         }
@@ -243,8 +243,8 @@ final class AuthRequest implements AuthRequestInterface
         $instance = clone $this;
         $instance->params = array_merge($instance->params, $params);
 
-        if (0 === count(array_diff_key($instance->params, array_flip(static::$requiredKeys)))) {
-            throw new InvalidArgumentException(implode(', ', static::$requiredKeys) . ' should be provided');
+        if (0 === count(array_diff_key($instance->params, array_flip(self::$requiredKeys)))) {
+            throw new InvalidArgumentException(implode(', ', self::$requiredKeys) . ' should be provided');
         }
 
         return $instance;
