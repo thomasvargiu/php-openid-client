@@ -49,7 +49,7 @@ class CallbackMiddleware implements MiddlewareInterface
             throw new LogicException('No OpenID client provided');
         }
 
-        if (null !== $authSession && ! $client instanceof AuthSessionInterface) {
+        if (null !== $authSession && ! $authSession instanceof AuthSessionInterface) {
             throw new LogicException('Invalid auth session provided in attribute ' . AuthSessionInterface::class);
         }
 
