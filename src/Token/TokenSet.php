@@ -9,10 +9,11 @@ use function array_key_exists;
 use function explode;
 use function is_array;
 use function json_decode;
+use JsonSerializable;
 use function TMV\OpenIdClient\base64url_decode;
 use TMV\OpenIdClient\Exception\RuntimeException;
 
-class TokenSet implements TokenSetInterface
+class TokenSet implements TokenSetInterface, JsonSerializable
 {
     /** @var null|string */
     private $code;
