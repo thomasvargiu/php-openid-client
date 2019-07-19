@@ -90,7 +90,7 @@ class ResponseTokenVerifier extends AbstractTokenVerifier implements ResponseTok
             new AzpChecker($metadata->getClientId()),
         ];
 
-        $requiredClaims = ['iss', 'sub', 'aud', 'exp', 'iat'];
+        $requiredClaims = ['iss', 'aud'];
 
         $claimCheckerManager = new ClaimCheckerManager(array_filter($claimCheckers));
 
