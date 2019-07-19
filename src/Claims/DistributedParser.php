@@ -10,6 +10,7 @@ use Http\Discovery\Psr18ClientDiscovery;
 use function is_array;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Signature\JWSVerifier;
+use Jose\Component\Signature\Serializer\JWSSerializer;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -31,9 +32,10 @@ final class DistributedParser extends AbstractClaims implements DistributedParse
         ?RequestFactoryInterface $requestFactory = null,
         ?AlgorithmManager $algorithmManager = null,
         ?JWSVerifier $JWSVerifier = null,
-        ?IssuerFactoryInterface $issuerFactory = null
+        ?IssuerFactoryInterface $issuerFactory = null,
+        ?JWSSerializer $serializer = null
     ) {
-        parent::__construct($algorithmManager, $JWSVerifier, $issuerFactory);
+        parent::__construct($algorithmManager, $JWSVerifier, $issuerFactory, $serializer);
 
         $this->client = $client ?: Psr18ClientDiscovery::find();
         $this->requestFactory = $requestFactory ?: Psr17FactoryDiscovery::findRequestFactory();
