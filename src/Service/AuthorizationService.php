@@ -223,8 +223,10 @@ class AuthorizationService
 
         $tokenRequest = $authMethod->createRequest($tokenRequest, $client, $params);
 
+        $httpClient = $client->getHttpClient() ?: $this->client;
+
         try {
-            $response = $this->client->sendRequest($tokenRequest);
+            $response = $httpClient->sendRequest($tokenRequest);
         } catch (ClientExceptionInterface $e) {
             throw new RuntimeException('Unable to get token response', 0, $e);
         }

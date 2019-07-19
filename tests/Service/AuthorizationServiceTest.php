@@ -56,6 +56,7 @@ class AuthorizationServiceTest extends TestCase
 
         $openIdClient->getIssuer()->willReturn($issuer->reveal());
         $openIdClient->getMetadata()->willReturn($clientMetadata->reveal());
+        $openIdClient->getHttpClient()->willReturn(null);
         $clientMetadata->getClientId()->willReturn('clientId');
         $clientMetadata->getResponseTypes()->willReturn(['code']);
         $clientMetadata->getRedirectUris()->willReturn(['redirect_uri_1']);
@@ -90,6 +91,7 @@ class AuthorizationServiceTest extends TestCase
         );
 
         $openIdClient = $this->prophesize(OpenIDClient::class);
+        $openIdClient->getHttpClient()->willReturn(null);
         $metadata = $this->prophesize(ClientMetadataInterface::class);
         $authMethodFactory = $this->prophesize(AuthMethodFactoryInterface::class);
         $authMethod = $this->prophesize(AuthMethodInterface::class);

@@ -50,8 +50,10 @@ class IntrospectionService
             'token' => $token,
         ])));
 
+        $httpClient = $client->getHttpClient() ?: $this->client;
+
         try {
-            $response = $this->client->sendRequest($tokenRequest);
+            $response = $httpClient->sendRequest($tokenRequest);
         } catch (ClientExceptionInterface $e) {
             throw new RuntimeException('Unable to get revocation response', 0, $e);
         }

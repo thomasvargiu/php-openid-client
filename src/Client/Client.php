@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TMV\OpenIdClient\Client;
 
 use Jose\Component\Core\JWKSet;
+use Psr\Http\Client\ClientInterface as HttpClient;
 use TMV\OpenIdClient\AuthMethod\AuthMethodFactory;
 use TMV\OpenIdClient\AuthMethod\AuthMethodFactoryInterface;
 use TMV\OpenIdClient\AuthMethod\ClientSecretBasic;
@@ -31,6 +32,9 @@ final class Client implements ClientInterface
     /** @var AuthMethodFactoryInterface */
     private $authMethodFactory;
 
+    /** @var null|HttpClient */
+    private $httpClient;
+
     /**
      * Client constructor.
      *
@@ -38,12 +42,14 @@ final class Client implements ClientInterface
      * @param ClientMetadataInterface $metadata
      * @param null|JWKSet $jwks
      * @param null|AuthMethodFactoryInterface $authMethodFactory
+     * @param null|HttpClient $httpClient
      */
     public function __construct(
         IssuerInterface $issuer,
         ClientMetadataInterface $metadata,
         ?JWKSet $jwks = null,
-        ?AuthMethodFactoryInterface $authMethodFactory = null
+        ?AuthMethodFactoryInterface $authMethodFactory = null,
+        ?HttpClient $httpClient = null
     ) {
         $this->issuer = $issuer;
         $this->metadata = $metadata;
@@ -57,6 +63,7 @@ final class Client implements ClientInterface
             new TLSClientAuth(),
             new SelfSignedTLSClientAuth(),
         ]);
+        $this->httpClient = $httpClient;
     }
 
     /**
@@ -83,5 +90,10 @@ final class Client implements ClientInterface
     public function getAuthMethodFactory(): AuthMethodFactoryInterface
     {
         return $this->authMethodFactory;
+    }
+
+    public function getHttpClient(): ?HttpClient
+    {
+        return $this->httpClient;
     }
 }

@@ -87,8 +87,10 @@ class UserinfoService
                 ->withHeader('authorization', 'Bearer ' . $accessToken);
         }
 
+        $httpClient = $client->getHttpClient() ?: $this->client;
+
         try {
-            $response = $this->client->sendRequest($request);
+            $response = $httpClient->sendRequest($request);
         } catch (ClientExceptionInterface $e) {
             throw new RuntimeException('Unable to get userinfo', 0, $e);
         }

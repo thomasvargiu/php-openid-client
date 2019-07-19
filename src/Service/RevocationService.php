@@ -50,8 +50,10 @@ class RevocationService
             'token' => $token,
         ])));
 
+        $httpClient = $client->getHttpClient() ?: $this->client;
+
         try {
-            $response = $this->client->sendRequest($tokenRequest);
+            $response = $httpClient->sendRequest($tokenRequest);
             check_server_response($response, 200);
         } catch (ClientExceptionInterface $e) {
             throw new RuntimeException('Unable to get revocation response', 0, $e);
