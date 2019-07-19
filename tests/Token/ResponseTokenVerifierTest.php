@@ -128,7 +128,7 @@ class ResponseTokenVerifierTest extends TestCase
                     'iat' => time(),
                     'auth_time' => time() - 100,
                 ],
-                false,
+                true,
             ],
             // missing iss
             [
@@ -161,7 +161,7 @@ class ResponseTokenVerifierTest extends TestCase
                     'iat' => time(),
                     'auth_time' => time() - 100,
                 ],
-                false,
+                true,
             ],
             // missing iat
             [
@@ -172,7 +172,7 @@ class ResponseTokenVerifierTest extends TestCase
                     'exp' => time() + 300,
                     'auth_time' => time() - 100,
                 ],
-                false,
+                true,
             ],
         ];
     }
