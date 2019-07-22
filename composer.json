@@ -1,6 +1,5 @@
 {
     "name": "thomasvargiu/php-openid-client",
-    "version": "0.1.0",
     "description": "OpenId Client",
     "type": "library",
     "license": "MIT",
